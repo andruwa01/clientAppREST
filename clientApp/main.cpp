@@ -22,6 +22,8 @@ int main(int argc, char *argv[])
     QStandardItem* task2 = new QStandardItem("Задача 2");
     employee1->appendRow({task1, new QStandardItem("Описание 1")});
     employee1->appendRow({task2, new QStandardItem("Описание 2")});
+    employee1->appendRow({task2, new QStandardItem("Описание 2")});
+
     rootItem->appendRow(employee1);
 
     // Добавление второго сотрудника
