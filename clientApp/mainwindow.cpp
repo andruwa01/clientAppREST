@@ -1,5 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QTreeView>
+#include <QStandardItemModel>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QPushButton>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -12,4 +17,3 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
-
