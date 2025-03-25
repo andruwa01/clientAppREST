@@ -98,6 +98,7 @@ void TreeModel::setupModelData(const QList<QStringView> &lines, TreeItem *parent
                 if (lastParent->childCount() > 0)
                     state.append({lastParent->child(lastParent->childCount() - 1), position});
             } else {
+                // go level up in hierarchy
                 while (position < state.constLast().indentation && !state.isEmpty())
                     state.removeLast();
             }
