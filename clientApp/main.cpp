@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
 
-    QFile file("default.txt");
+    QFile file(":/default.txt");
     file.open(QIODevice::ReadOnly | QIODevice::Text);
     TreeModel model(QString::fromUtf8(file.readAll()));
     file.close();
