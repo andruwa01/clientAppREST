@@ -11,11 +11,17 @@ CONFIG += c++11
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
-    objecttreemodel.cpp
+    objecttreemodel.cpp \
+    stringlistmodel.cpp \
+    treeitem.cpp \
+    treemodel.cpp
 
 HEADERS += \
     mainwindow.h \
-    objecttreemodel.h
+    objecttreemodel.h \
+    stringlistmodel.h \
+    treeitem.h \
+    treemodel.h
 
 FORMS += \
     mainwindow.ui
