@@ -78,6 +78,7 @@ void TreeModel::setupModelData(const QList<QStringView> &lines, TreeItem *parent
 
     for (const auto &line : lines) {
         qsizetype position = 0;
+        // count idents for line
         for ( ; position < line.length() && line.at(position).isSpace(); ++position)
         {}
 
