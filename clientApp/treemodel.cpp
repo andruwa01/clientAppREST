@@ -66,5 +66,47 @@ Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const
             ? QAbstractItemModel::flags(index) : Qt::ItemFlags(Qt::NoItemFlags);
 }
 
+void TreeModel::setupModelData(const QList<QStringView> &lines, TreeItem *parent)
+{
+    struct ParentIndentation
+    {
+        TreeItem *parent;
+        qsizetype indentation;
+    };
+
+    QList<ParentIndentation> state{{parent, 0}};
+
+    for (const auto &line : lines) {
+        qsizetype position = 0;
+        for ( ; position < line.length() && line.at(position).isSpace(); ++position)
+        {}
+
+        const QStringView lineData = line.sliced(position).trimmed();
+        if (!lineData.isEmpty()) {
+            // Read the column data from the rest of the line.
+            const auto columnStrings = lineData.split(u'\t', Qt::SkipEmptyParts);
+            QVariantList columnData;
+            columnData.reserve(columnStrings.count());
+            for (const auto &columnString : columnStrings)
+                columnData << columnString.toString();
+
+            if (position > state.constLast().indentation) {
+                // The last child of the current parent is now the new parent
+                // unless the current parent has no children.
+                auto *lastParent = state.constLast().parent;
+                if (lastParent->childCount() > 0)
+                    state.append({lastParent->child(lastParent->childCount() - 1), position});
+            } else {
+                while (position < state.constLast().indentation && !state.isEmpty())
+                    state.removeLast();
+            }
+
+            // Append a new item to the current parent's list of children.
+            auto *lastParent = state.constLast().parent;
+            lastParent->appendChild(std::make_unique<TreeItem>(columnData, lastParent));
+        }
+    }
+}
+
 TreeModel::~TreeModel() = default;
 
