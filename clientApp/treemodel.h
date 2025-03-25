@@ -24,6 +24,6 @@ private:
     static void setupModelData(const QList<QStringView> &lines, TreeItem* parent);
 
     std::unique_ptr<TreeItem> rootItem;
-};
+    };
 
 #endif // TREEMODEL_H
