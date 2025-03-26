@@ -10,10 +10,12 @@ CONFIG += c++11
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    treeitem.cpp
 
 HEADERS += \
-    mainwindow.h
+    mainwindow.h \
+    treeitem.h
 
 FORMS += \
     mainwindow.ui
@@ -24,3 +26,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES +=
+
+RESOURCES += \
+ clientApp.qrc

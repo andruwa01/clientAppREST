@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QFile>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -9,7 +11,21 @@ MainWindow::MainWindow(QWidget *parent)
 
     // get JSON from REST API
 
-    // TEST read json from file
+    // read json from the file
+    QFile file(":/testTasks.json");
+    const bool res = file.open(QIODevice::ReadOnly | QIODevice::Text);
+    Q_ASSERT_X(res, Q_FUNC_INFO, "failed to open json file");
+    if (!res) return;
+    // read json to model
+    QString jsonLines = QString::fromUtf8(file.readAll());
+
+    // load json to model
+    auto *model = new TreeModel(...);
+
+//    qDebug() << "json contents:\n" << jsonLines;
+    file.close();
+
+
 
     connect(ui->exitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
 }
