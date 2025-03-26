@@ -177,7 +177,8 @@ void TreeModel::setupModelDataFromJson(const QByteArray &jsonData)
         auto newItem = std::make_unique<TreeItem>(columnData, nullptr);
 
         // Determine parent item
-        if (taskObj["parent_task_id"].isNull()) {
+        if (taskObj["parent_task_id"].isNull())
+        {
             // No parent, insert directly under root
             p_rootItem->insertChildren(p_rootItem->childCount(), 1, p_rootItem->columnCount());
             TreeItem *insertedItem = p_rootItem->child(p_rootItem->childCount() - 1);
@@ -186,10 +187,13 @@ void TreeModel::setupModelDataFromJson(const QByteArray &jsonData)
             insertedItem->setData(2, columnData.at(2));
             insertedItem->setData(3, columnData.at(3));
             itemMap.insert(id, insertedItem);
-        } else {
+        }
+        else
+        {
             int parentId = taskObj["parent_task_id"].toInt();
             TreeItem *parentItem = itemMap.value(parentId, nullptr);
-            if (parentItem) {
+            if (parentItem)
+            {
                 parentItem->insertChildren(parentItem->childCount(), 1, p_rootItem->columnCount());
                 TreeItem *insertedItem = parentItem->child(parentItem->childCount() - 1);
                 insertedItem->setData(0, columnData.at(0));
@@ -197,7 +201,9 @@ void TreeModel::setupModelDataFromJson(const QByteArray &jsonData)
                 insertedItem->setData(2, columnData.at(2));
                 insertedItem->setData(3, columnData.at(3));
                 itemMap.insert(id, insertedItem);
-            } else {
+            }
+            else
+            {
                 // If parent not found, fallback to root
                 p_rootItem->insertChildren(p_rootItem->childCount(), 1, p_rootItem->columnCount());
                 TreeItem *insertedItem = p_rootItem->child(p_rootItem->childCount() - 1);
