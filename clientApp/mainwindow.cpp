@@ -10,7 +10,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    const QStringList headers({tr("Название"), tr("Описание"), tr("Назначено на"), tr("Дата выполнения"), tr("Статус задачи")});
+    const QStringList headers({tr("Название"), tr("Описание"), tr("Дата выполнения"), tr("Статус задачи")});
+    qDebug() << "headers: " << headers;
 
     // get JSON from REST API
 
@@ -42,10 +43,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     // load json to model
     auto *model = new TreeModel(headers, jsonData);
+    ui->view->setModel(model);
+    for (int column = 0; column < model->columnCount(); column++)
+    {
+        ui->view->resizeColumnToContents(column);
+    }
+    ui->view->expandAll();
 
     file.close();
-
-
 
     connect(ui->exitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
 }
