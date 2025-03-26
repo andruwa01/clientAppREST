@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent)
     {
         jsonLines = jsonLines.mid(1, jsonLines.length() - 2);  // remove outer ""
     }
-    jsonLines.replace("\\\"", "\"");  // remove \\\"
+    jsonLines.replace("\\\"", "\"");  // replace \" with " in str
     jsonLines = jsonLines.trimmed();  // remove spaces and \n
 
     qDebug() << "json contents after:\n" << jsonLines;

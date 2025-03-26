@@ -71,4 +71,56 @@ bool TreeModel::removeRows(int position, int rows, const QModelIndex &parent)
 void TreeModel::setupModelDataFromJson(const QByteArray &jsonData)
 {
     QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+
+//    if (!doc.isArray())
+//           return;
+
+//       QJsonArray tasksArray = doc.array();
+
+//       // Для связи id задачи с соответствующим TreeItem
+//       QHash<int, TreeItem*> itemMap;
+
+//       // Проходим по всем задачам
+//       for (const QJsonValue &value : tasksArray)
+//       {
+//           QJsonObject taskObj = value.toObject();
+//           int id = taskObj["id"].toInt();
+
+//           // Подготовка данных для столбцов (пример: title, description, due_date, status)
+//           QVariantList columnData;
+//           columnData << taskObj["title"].toString()
+//                      << taskObj["description"].toString()
+//                      << taskObj["due_date"].toString()
+//                      << taskObj["status"].toString();
+
+//           // Создаем новый элемент. Можно использовать insertChildren(), если нужно,
+//           // или создать элемент напрямую.
+//           TreeItem *newItem = new TreeItem(columnData, p_rootTask.get());
+
+//           // Определяем родительский элемент
+//           if (taskObj["parent_task_id"].isNull()) {
+//               // Элемент без родителя – добавляем к корневому элементу.
+//               p_rootTask->insertChildren(p_rootTask->childCount(), 1, p_rootTask->columnCount());
+//               // Обычно после вставки получаем указатель на созданный элемент:
+//               TreeItem *insertedItem = p_rootTask->child(p_rootTask->childCount() - 1);
+//               *insertedItem = *newItem; // Пример копирования данных или можно передать newItem напрямую.
+//               itemMap.insert(id, insertedItem);
+//           } else {
+//               int parentId = taskObj["parent_task_id"].toInt();
+//               TreeItem *parentItem = itemMap.value(parentId, nullptr);
+//               if (parentItem) {
+//                   parentItem->insertChildren(parentItem->childCount(), 1, p_rootTask->columnCount());
+//                   TreeItem *insertedItem = parentItem->child(parentItem->childCount() - 1);
+//                   *insertedItem = *newItem;
+//                   itemMap.insert(id, insertedItem);
+//               } else {
+//                   // Если родитель еще не найден, можно либо откладывать добавление,
+//                   // либо добавить элемент к корню как fallback.
+//                   p_rootTask->insertChildren(p_rootTask->childCount(), 1, p_rootTask->columnCount());
+//                   TreeItem *insertedItem = p_rootTask->child(p_rootTask->childCount() - 1);
+//                   *insertedItem = *newItem;
+//                   itemMap.insert(id, insertedItem);
+//               }
+//           }
+//       }
 }

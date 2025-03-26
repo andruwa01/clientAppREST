@@ -6,6 +6,7 @@
 #include <QAbstractItemModel>
 #include <QJsonDocument>
 #include <QJsonArray>
+#include <QJsonObject>
 
 class TreeModel : public QAbstractItemModel
 {
