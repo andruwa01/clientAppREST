@@ -35,7 +35,7 @@ private:
     void setupModelDataFromJson(const QByteArray &jsonData);
     TreeItem *getItem(const QModelIndex &index) const;
 
-    std::unique_ptr<TreeItem> p_rootTask;
+    std::unique_ptr<TreeItem> p_rootItem;
 };
 
 #endif // TREEMODEL_H
