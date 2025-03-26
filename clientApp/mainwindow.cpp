@@ -7,6 +7,10 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    // get JSON from REST API
+
+    // TEST read json from file
+
     connect(ui->exitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
 }
 

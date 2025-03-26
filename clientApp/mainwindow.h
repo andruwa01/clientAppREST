@@ -15,6 +15,14 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+public slots:
+    void updateActions();
+
+private slots:
+    void insertTask();
+    void insertSubtask();
+    void removeTask();
+
 private:
     Ui::MainWindow *ui;
 };
