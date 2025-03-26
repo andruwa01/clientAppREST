@@ -70,11 +70,11 @@
     <property name="title">
      <string>Задачи</string>
     </property>
-    <addaction name="addNewTask"/>
+    <addaction name="addNewTaskAction"/>
     <addaction name="separator"/>
-    <addaction name="removeRowAction"/>
+    <addaction name="removeTaskAction"/>
     <addaction name="separator"/>
-    <addaction name="insertChildAction"/>
+    <addaction name="insertSubtaskAction"/>
    </widget>
    <addaction name="fileMenu"/>
    <addaction name="actionsMenu"/>
@@ -88,7 +88,7 @@
     <string>Ctrl+Q</string>
    </property>
   </action>
-  <action name="addNewTask">
+  <action name="addNewTaskAction">
    <property name="text">
     <string>Добавить задачу</string>
    </property>
@@ -96,7 +96,7 @@
     <string>Ctrl+I, R</string>
    </property>
   </action>
-  <action name="removeRowAction">
+  <action name="removeTaskAction">
    <property name="text">
     <string>Удалить задачу</string>
    </property>
@@ -104,7 +104,7 @@
     <string>Ctrl+R, R</string>
    </property>
   </action>
-  <action name="insertChildAction">
+  <action name="insertSubtaskAction">
    <property name="text">
     <string>Добавить подзадачу</string>
    </property>
