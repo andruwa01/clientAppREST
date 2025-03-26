@@ -9,6 +9,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    const QStringList headers({tr("Название"), tr("Описание"), tr("Кому назначено"), tr("Дата выполнения"), tr("Статус")});
+
     // get JSON from REST API
 
     // read json from the file
@@ -20,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     QString jsonLines = QString::fromUtf8(file.readAll());
 
     // load json to model
-    auto *model = new TreeModel(...);
+//    auto *model = new TreeModel(headers);
 
 //    qDebug() << "json contents:\n" << jsonLines;
     file.close();
