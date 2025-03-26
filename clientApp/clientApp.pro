@@ -10,18 +10,10 @@ CONFIG += c++11
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp \
-    objecttreemodel.cpp \
-    stringlistmodel.cpp \
-    treeitem.cpp \
-    treemodel.cpp
+    mainwindow.cpp
 
 HEADERS += \
-    mainwindow.h \
-    objecttreemodel.h \
-    stringlistmodel.h \
-    treeitem.h \
-    treemodel.h
+    mainwindow.h
 
 FORMS += \
     mainwindow.ui
@@ -32,6 +24,3 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES +=
-
-RESOURCES += \
-    client4App.qrc
