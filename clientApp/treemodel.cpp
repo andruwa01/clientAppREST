@@ -162,6 +162,7 @@ void TreeModel::setupModelDataFromJson(const QByteArray &jsonData)
     QJsonArray tasksArray = doc.array();
 
     // QHash to map task ID to corresponding TreeItem
+    // we will use this to check if our new item has parent to insert into
     QHash<int, TreeItem*> itemMap;
 
     for (const QJsonValue &value : tasksArray)
@@ -176,20 +177,20 @@ void TreeModel::setupModelDataFromJson(const QByteArray &jsonData)
                    << taskObj["status"].toString();
 
         // Determine parent item
-        TreeItem *parentItem = nullptr;
+        TreeItem *p_parentItem = nullptr;
         if (taskObj["parent_task_id"].isNull())
         {
-            parentItem = p_rootItem.get();
+            p_parentItem  = p_rootItem.get();
         }
         else
         {
             int parentId = taskObj["parent_task_id"].toInt();
-            parentItem = itemMap.value(parentId, p_rootItem.get());
+            p_parentItem = itemMap.value(parentId, p_rootItem.get());
         }
 
         // Insert new item
-        parentItem->insertChildren(parentItem->childCount(), 1, p_rootItem->columnCount());
-        TreeItem *insertedItem = parentItem->child(parentItem->childCount() - 1);
+        p_parentItem->insertChildren(p_parentItem->childCount(), 1, p_rootItem->columnCount());
+        TreeItem *insertedItem = p_parentItem->child(p_parentItem->childCount() - 1);
         for (int i = 0; i < columnData.size(); i++)
         {
             insertedItem->setData(i, columnData.at(i));
