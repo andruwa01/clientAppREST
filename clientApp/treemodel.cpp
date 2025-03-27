@@ -16,10 +16,14 @@ TreeModel::~TreeModel() {}
 QVariant TreeModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
+    {
         return {};
+    }
 
     if (role != Qt::DisplayRole && role != Qt::EditRole)
+    {
         return {};
+    }
 
     TreeItem *item = getItem(index);
 
@@ -28,21 +32,33 @@ QVariant TreeModel::data(const QModelIndex &index, int role) const
 
 QVariant TreeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    return (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-        ? p_rootItem->data(section) : QVariant{};
+    if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
+    {
+        return p_rootItem->data(section);
+    }
+
+    return QVariant{};
 }
 
 QModelIndex TreeModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (parent.isValid() && parent.column() != 0)
+    {
         return {};
+    }
 
     TreeItem *parentItem = getItem(parent);
     if (!parentItem)
+    {
         return {};
+    }
 
     if (auto *childItem = parentItem->child(row))
+    {
+
         return createIndex(row, column, childItem);
+    }
+
     return {};
 }
 
@@ -99,7 +115,9 @@ Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const
 bool TreeModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (role != Qt::EditRole)
+    {
         return false;
+    }
 
     TreeItem *item = getItem(index);
     bool result = item->setData(index.column(), value);
@@ -115,7 +133,9 @@ bool TreeModel::setData(const QModelIndex &index, const QVariant &value, int rol
 bool TreeModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role)
 {
     if (role != Qt::EditRole || orientation != Qt::Horizontal)
+    {
         return false;
+    }
 
     const bool result = p_rootItem->setData(section, value);
 
@@ -146,7 +166,9 @@ bool TreeModel::removeRows(int position, int rows, const QModelIndex &parent)
 {
     TreeItem *parentItem = getItem(parent);
     if (!parentItem)
+    {
         return false;
+    }
 
     beginRemoveRows(parent, position, position + rows - 1);
     const bool success = parentItem->removeChildren(position, rows);
