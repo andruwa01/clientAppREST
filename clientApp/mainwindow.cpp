@@ -10,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    const QStringList headers({tr("Название"), tr("Описание"), tr("Дата выполнения"), tr("Статус задачи")});
+    const QStringList headers({tr("Title"), tr("Description"), tr("Due date"), tr("Status"), tr("Overdue"), tr("Employee")});
     qDebug() << "headers: " << headers;
 
     // get JSON from REST API
