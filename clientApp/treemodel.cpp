@@ -54,15 +54,26 @@ QModelIndex TreeModel::parent(const QModelIndex &index) const
     TreeItem *childItem = getItem(index);
     TreeItem *parentItem = childItem ? childItem->parent() : nullptr;
 
-    return (parentItem != p_rootItem.get() && parentItem != nullptr)
-        ? createIndex(parentItem->row(), 0, parentItem) : QModelIndex{};
+    QModelIndex returnIndex;
+    if (parentItem != p_rootItem.get() && parentItem != nullptr)
+    {
+        returnIndex = createIndex(parentItem->row(), 0, parentItem);
+    }
+    else
+    {
+        returnIndex = QModelIndex{};
+    }
+
+    return returnIndex;
 
 }
 
 int TreeModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid() && parent.column() > 0)
+    {
         return 0;
+    }
 
     const TreeItem *parentItem = getItem(parent);
 
@@ -78,7 +89,9 @@ int TreeModel::columnCount(const QModelIndex &parent) const
 Qt::ItemFlags TreeModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
+    {
         return Qt::NoItemFlags;
+    }
 
     return Qt::ItemIsEditable | QAbstractItemModel::flags(index);
 }
@@ -92,7 +105,9 @@ bool TreeModel::setData(const QModelIndex &index, const QVariant &value, int rol
     bool result = item->setData(index.column(), value);
 
     if (result)
+    {
         emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
+    }
 
     return result;
 }
@@ -105,7 +120,9 @@ bool TreeModel::setHeaderData(int section, Qt::Orientation orientation, const QV
     const bool result = p_rootItem->setData(section, value);
 
     if (result)
+    {
         emit headerDataChanged(orientation, section, section);
+    }
 
     return result;
 }
@@ -114,12 +131,12 @@ bool TreeModel::insertRows(int position, int rows, const QModelIndex &parent)
 {
     TreeItem *parentItem = getItem(parent);
     if (!parentItem)
+    {
         return false;
+    }
 
     beginInsertRows(parent, position, position + rows - 1);
-    const bool success = parentItem->insertChildren(position,
-                                                    rows,
-                                                    p_rootItem->columnCount());
+    const bool success = parentItem->insertChildren(position, rows, p_rootItem->columnCount());
     endInsertRows();
 
     return success;
@@ -143,7 +160,9 @@ TreeItem *TreeModel::getItem(const QModelIndex &index) const
     if (index.isValid())
     {
         if (auto *item = static_cast<TreeItem*>(index.internalPointer()))
+        {
             return item;
+        }
     }
     return p_rootItem.get();
 
