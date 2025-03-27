@@ -74,7 +74,7 @@
     <addaction name="separator"/>
     <addaction name="removeTaskAction"/>
     <addaction name="separator"/>
-    <addaction name="insertSubtaskAction"/>
+    <addaction name="addSubtaskAction"/>
    </widget>
    <addaction name="fileMenu"/>
    <addaction name="actionsMenu"/>
@@ -89,6 +89,9 @@
    </property>
   </action>
   <action name="addNewTaskAction">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Добавить задачу</string>
    </property>
@@ -104,7 +107,7 @@
     <string>Ctrl+R, R</string>
    </property>
   </action>
-  <action name="insertSubtaskAction">
+  <action name="addSubtaskAction">
    <property name="text">
     <string>Добавить подзадачу</string>
    </property>
