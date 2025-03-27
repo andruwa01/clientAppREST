@@ -55,8 +55,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->exitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
     connect(ui->view->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::updateActions);
 
-    connect(ui->addNewTaskAction, &QAction::triggered, this, &MainWindow::insertTask);
-    connect(ui->addSubtaskAction, &QAction::triggered, this, &MainWindow::insertSubtask);
+    connect(ui->insertTaskAction, &QAction::triggered, this, &MainWindow::insertTask);
+    connect(ui->insertSubtaskAction, &QAction::triggered, this, &MainWindow::insertSubtask);
     connect(ui->removeTaskAction, &QAction::triggered, this, &MainWindow::removeTask);
 
     updateActions();
@@ -71,6 +71,8 @@ void MainWindow::insertTask()
 {
     const QModelIndex index = ui->view->selectionModel()->currentIndex();
     QAbstractItemModel *model = ui->view->model();
+
+    // insert new task
     if (!model->insertRow(index.row() + 1, index.parent()))
     {
         return;
@@ -78,6 +80,7 @@ void MainWindow::insertTask()
 
     updateActions();
 
+    // set data to new task
     for (int column = 0; column < model->columnCount(index.parent()); column++)
     {
         const QModelIndex child = model->index(index.row() + 1, column, index.parent());
@@ -134,7 +137,7 @@ void MainWindow::updateActions()
     ui->removeTaskAction->setEnabled(hasSelection);
 
     const bool hasCurrent = ui->view->selectionModel()->currentIndex().isValid();
-    ui->addNewTaskAction->setEnabled(hasCurrent);
+    ui->insertTaskAction->setEnabled(hasCurrent);
 
     if (hasCurrent)
     {

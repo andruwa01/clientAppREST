@@ -70,11 +70,11 @@
     <property name="title">
      <string>Задачи</string>
     </property>
-    <addaction name="addNewTaskAction"/>
+    <addaction name="insertTaskAction"/>
     <addaction name="separator"/>
     <addaction name="removeTaskAction"/>
     <addaction name="separator"/>
-    <addaction name="addSubtaskAction"/>
+    <addaction name="insertSubtaskAction"/>
    </widget>
    <addaction name="fileMenu"/>
    <addaction name="actionsMenu"/>
@@ -88,7 +88,7 @@
     <string>Ctrl+Q</string>
    </property>
   </action>
-  <action name="addNewTaskAction">
+  <action name="insertTaskAction">
    <property name="checkable">
     <bool>false</bool>
    </property>
@@ -107,7 +107,7 @@
     <string>Ctrl+R, R</string>
    </property>
   </action>
-  <action name="addSubtaskAction">
+  <action name="insertSubtaskAction">
    <property name="text">
     <string>Добавить подзадачу</string>
    </property>
