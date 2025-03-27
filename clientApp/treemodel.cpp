@@ -154,11 +154,14 @@ void TreeModel::setupModelDataFromJson(const QByteArray &jsonData)
     QJsonDocument doc = QJsonDocument::fromJson(jsonData);
 
     if (!doc.isArray())
+    {
         qDebug() << "setupModelDataFromJson(): " << "json is not an array";
         return;
+    }
 
     QJsonArray tasksArray = doc.array();
 
+    // qhash to map task ID to corresponding TreeItem
     QHash<int, TreeItem*> itemMap;
 
     for (const QJsonValue &value : tasksArray)
@@ -172,12 +175,13 @@ void TreeModel::setupModelDataFromJson(const QByteArray &jsonData)
                    << taskObj["due_date"].toString()
                    << taskObj["status"].toString();
 
+        // create a new TreeItem
         auto newItem = std::make_unique<TreeItem>(columnData, nullptr);
 
-        // determine parent item
+        // Determine parent item
         if (taskObj["parent_task_id"].isNull())
         {
-            // No parent, insert directly under root
+            // no parent, insert directly under root
             p_rootItem->insertChildren(p_rootItem->childCount(), 1, p_rootItem->columnCount());
             TreeItem *insertedItem = p_rootItem->child(p_rootItem->childCount() - 1);
             insertedItem->setData(0, columnData.at(0));
