@@ -161,7 +161,7 @@ void TreeModel::setupModelDataFromJson(const QByteArray &jsonData)
 
     QJsonArray tasksArray = doc.array();
 
-    // qhash to map task ID to corresponding TreeItem
+    // QHash to map task ID to corresponding TreeItem
     QHash<int, TreeItem*> itemMap;
 
     for (const QJsonValue &value : tasksArray)
@@ -175,46 +175,26 @@ void TreeModel::setupModelDataFromJson(const QByteArray &jsonData)
                    << taskObj["due_date"].toString()
                    << taskObj["status"].toString();
 
-        // create a new TreeItem
-        auto newItem = std::make_unique<TreeItem>(columnData, nullptr);
-
         // Determine parent item
+        TreeItem *parentItem = nullptr;
         if (taskObj["parent_task_id"].isNull())
         {
-            // no parent, insert directly under root
-            p_rootItem->insertChildren(p_rootItem->childCount(), 1, p_rootItem->columnCount());
-            TreeItem *insertedItem = p_rootItem->child(p_rootItem->childCount() - 1);
-            insertedItem->setData(0, columnData.at(0));
-            insertedItem->setData(1, columnData.at(1));
-            insertedItem->setData(2, columnData.at(2));
-            insertedItem->setData(3, columnData.at(3));
-            itemMap.insert(id, insertedItem);
+            parentItem = p_rootItem.get();
         }
         else
         {
             int parentId = taskObj["parent_task_id"].toInt();
-            TreeItem *parentItem = itemMap.value(parentId, nullptr);
-            if (parentItem)
-            {
-                parentItem->insertChildren(parentItem->childCount(), 1, p_rootItem->columnCount());
-                TreeItem *insertedItem = parentItem->child(parentItem->childCount() - 1);
-                insertedItem->setData(0, columnData.at(0));
-                insertedItem->setData(1, columnData.at(1));
-                insertedItem->setData(2, columnData.at(2));
-                insertedItem->setData(3, columnData.at(3));
-                itemMap.insert(id, insertedItem);
-            }
-            else
-            {
-                // if parent not found, fallback to root
-                p_rootItem->insertChildren(p_rootItem->childCount(), 1, p_rootItem->columnCount());
-                TreeItem *insertedItem = p_rootItem->child(p_rootItem->childCount() - 1);
-                insertedItem->setData(0, columnData.at(0));
-                insertedItem->setData(1, columnData.at(1));
-                insertedItem->setData(2, columnData.at(2));
-                insertedItem->setData(3, columnData.at(3));
-                itemMap.insert(id, insertedItem);
-            }
+            parentItem = itemMap.value(parentId, p_rootItem.get());
         }
+
+        // Insert new item
+        parentItem->insertChildren(parentItem->childCount(), 1, p_rootItem->columnCount());
+        TreeItem *insertedItem = parentItem->child(parentItem->childCount() - 1);
+        for (int i = 0; i < columnData.size(); i++)
+        {
+            insertedItem->setData(i, columnData.at(i));
+        }
+
+        itemMap.insert(id, insertedItem);
     }
 }
