@@ -32,13 +32,38 @@ TreeItemModel::TreeItemModel(QObject *parent)
     // try to parse
     QByteArray jsonData = jsonLines.toUtf8();
     QJsonDocument doc = QJsonDocument::fromJson(jsonData);
-    doc.isNull() ? qDebug() << "fail to parse json" : qDebug() << "success parse json, size: " << doc.array().size();
+
+    if (doc.isNull() || !doc.isArray()) {
+        qWarning() << "Failed to parse JSON or not an array";
+        return;
+    }
 
     // set data in tree
     QJsonArray taskArray = doc.array();
+    QHash<int, TreeItem*> itemMap;
     for (const QJsonValue &value : taskArray)
     {
-        // parse
+        QJsonObject taskObj = value.toObject();
+        int id = taskObj["id"].toInt();
+
+        TreeItem *p_parentItem = nullptr;
+        if (taskObj["parent_task_id"].isNull())
+        {
+            p_parentItem = p_rootItem.get();
+        }
+        else
+        {
+            int parentId = taskObj["parent_task_id"].toInt();
+            p_parentItem = itemMap.value(parentId, p_rootItem.get());
+        }
+
+        p_parentItem->insertChildren(p_parentItem->childCount(), 1);
+        TreeItem *insertedItem = p_parentItem->child(p_parentItem->childCount() - 1);
+
+        // insert json in insertedItem
+        insertedItem->setTaskDataFromJson(taskObj);
+
+        itemMap.insert(id, insertedItem);
     }
 
     #endif
