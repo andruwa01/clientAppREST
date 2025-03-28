@@ -43,17 +43,17 @@ TreeItemModel::TreeItemModel(QObject *parent)
     QHash<int, TreeItem*> itemMap;
     for (const QJsonValue &value : taskArray)
     {
-        QJsonObject taskObj = value.toObject();
-        int id = taskObj["id"].toInt();
+        QJsonObject taskJsonObj = value.toObject();
+        int id = taskJsonObj["id"].toInt();
 
         TreeItem *p_parentItem = nullptr;
-        if (taskObj["parent_task_id"].isNull())
+        if (taskJsonObj["parent_task_id"].isNull())
         {
             p_parentItem = p_rootItem.get();
         }
         else
         {
-            int parentId = taskObj["parent_task_id"].toInt();
+            int parentId = taskJsonObj["parent_task_id"].toInt();
             p_parentItem = itemMap.value(parentId, p_rootItem.get());
         }
 
@@ -61,7 +61,7 @@ TreeItemModel::TreeItemModel(QObject *parent)
         TreeItem *insertedItem = p_parentItem->child(p_parentItem->childCount() - 1);
 
         // insert json in insertedItem
-        insertedItem->setTaskDataFromJson(taskObj);
+        insertedItem->setTaskDataFromJson(taskJsonObj);
 
         itemMap.insert(id, insertedItem);
     }
