@@ -90,8 +90,14 @@ void MainWindow::insertTask()
 
 void MainWindow::insertSubtask()
 {
-    const QModelIndex index = ui->view->selectionModel()->currentIndex();
+    QModelIndex index = ui->view->selectionModel()->currentIndex();
     QAbstractItemModel *model = ui->view->model();
+
+    // to correct insert row when we chose element with index.column() != 0
+    if (index.column() != 0)
+    {
+        index = index.siblingAtColumn(0);
+    }
 
     if (model->columnCount(index) == 0)
     {
