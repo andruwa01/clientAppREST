@@ -12,11 +12,13 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     treeitem.cpp \
+    treeitemmodel.cpp \
     treemodel.cpp
 
 HEADERS += \
     mainwindow.h \
     treeitem.h \
+    treeitemmodel.h \
     treemodel.h
 
 FORMS += \
