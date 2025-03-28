@@ -75,6 +75,8 @@
     <addaction name="removeTaskAction"/>
     <addaction name="separator"/>
     <addaction name="insertSubtaskAction"/>
+    <addaction name="separator"/>
+    <addaction name="taskCompletedAction"/>
    </widget>
    <addaction name="fileMenu"/>
    <addaction name="actionsMenu"/>
@@ -113,6 +115,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="taskCompletedAction">
+   <property name="text">
+    <string>Задача выполнена</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
    </property>
   </action>
  </widget>

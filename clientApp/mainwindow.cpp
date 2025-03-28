@@ -58,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->insertTaskAction, &QAction::triggered, this, &MainWindow::insertTask);
     connect(ui->insertSubtaskAction, &QAction::triggered, this, &MainWindow::insertSubtask);
     connect(ui->removeTaskAction, &QAction::triggered, this, &MainWindow::removeTask);
+//    connect(ui->taskCompletedAction, &QAction::triggered, this, &MainWindow::completeTask);
 
     updateActions();
 }
@@ -142,6 +143,7 @@ void MainWindow::updateActions()
 
     const bool hasCurrent = ui->view->selectionModel()->currentIndex().isValid();
     ui->insertTaskAction->setEnabled(hasCurrent);
+    ui->taskCompletedAction->setEnabled(hasCurrent);
 
     if (hasCurrent)
     {
