@@ -6,6 +6,7 @@
 #include <QJsonObject>
 
 #define DATE_FORMAT "yyyy-MM-dd"
+#define DISPLAY_COLUMNS 4
 
 enum class TaskStatus
 {

@@ -39,7 +39,7 @@ int TreeItem::childCount() const
 
 int TreeItem::columnCount() const
 {
-    return 4;
+    return DISPLAY_COLUMNS;
 }
 
 int TreeItem::row() const
