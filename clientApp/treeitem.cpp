@@ -1,8 +1,27 @@
 #include "treeitem.h"
 
-TreeItem::TreeItem(QVariantList taskData, TreeItem *p_parentTask)
-    : taskData(std::move(taskData)), p_parentTask(p_parentTask)
-{}
+TreeItem::TreeItem(const QJsonObject &taskData, TreeItem *p_parentTask)
+    : p_parentTask(p_parentTask)
+{
+    m_id = taskData["id"].toInt();
+    m_parentTaskId = taskData["parent_task_id"].isNull() ? -1 : taskData["parent_task_id"].toInt();
+    m_assigneeId = taskData["assignee_id"].isNull() ? -1 : taskData["assignee_id"].toInt();
+
+    // displayed data
+    m_title = taskData["title"].toString();
+    m_description = taskData["description"].toString();
+    QString dueDateStr = taskData["due_date"].toString();
+    m_dueDate = QDate::fromString(dueDateStr, DATE_FORMAT);
+    if (!m_dueDate.isValid())
+    {
+        qWarning() << "invalid date format:" << dueDateStr;
+        m_dueDate = QDate();
+    }
+
+    QString statusStr = taskData["status"].toString();
+    m_status = stringToStatus(statusStr);
+}
+
 
 TreeItem *TreeItem::child(int number)
 {
@@ -17,6 +36,11 @@ TreeItem *TreeItem::child(int number)
 int TreeItem::childCount() const
 {
     return int(childTasks.size());
+}
+
+int TreeItem::columnCount() const
+{
+    return 4;
 }
 
 int TreeItem::row() const
@@ -40,14 +64,18 @@ int TreeItem::row() const
     return -1;
 }
 
-int TreeItem::columnCount() const
-{
-    return int(taskData.count());
-}
-
 QVariant TreeItem::data(int column) const
 {
-    return taskData.value(column);
+    switch(column)
+    {
+    case 0: return m_title;
+    case 1: return m_description;
+    case 2: return m_dueDate.toString(DATE_FORMAT);
+    case 3: return statusToString(m_status);
+    default:
+        qWarning() << "unknown column:" << column;
+        return QVariant();
+    }
 }
 
 bool TreeItem::insertChildren(int position, int count, int columns)
@@ -88,11 +116,144 @@ bool TreeItem::removeChildren(int position, int count)
 
 bool TreeItem::setData(int column, const QVariant &value)
 {
-    if (column < 0 || column >= taskData.size())
+    switch (column)
     {
+    case 0:
+        m_title = value.toString();
+        break;
+    case 1:
+        m_description = value.toString();
+        break;
+    case 2:
+    {
+        QString dateStr = value.toString();
+        QDate date = QDate::fromString(dateStr, DATE_FORMAT);
+        if (date.isValid())
+        {
+            m_dueDate = date;
+        } else
+        {
+            qWarning() << "Invalid date format:" << dateStr;
+            return false;
+        }
+        break;
+    }
+    case 3:
+    {
+        QString statusStr = value.toString();
+        m_status = stringToStatus(statusStr);
+        if (m_status == TaskStatus::New && statusStr != "new")
+        {
+            qWarning() << "Invalid status format:" << statusStr;
+            return false;
+        }
+        break;
+    }
+    default:
         return false;
     }
 
-    taskData[column] = value;
     return true;
+}
+
+
+TaskStatus TreeItem::stringToStatus(const QString &status) const
+{
+    if (status == "new")
+    {
+        return TaskStatus::New;
+    }
+    if (status == "in_progress")
+    {
+        return TaskStatus::InProgress;
+    }
+    if (status == "completed")
+    {
+        return TaskStatus::Completed;
+    }
+
+    qDebug() << "stringToStatus(): unkonown format of status: " << status;
+    return TaskStatus::New;
+}
+
+QString TreeItem::statusToString(TaskStatus status) const
+{
+    switch (status)
+    {
+        case TaskStatus::New: return "New";
+        case TaskStatus::InProgress: return "In Progress";
+        case TaskStatus::Completed: return "Completed";
+        default: return "unknown";
+    }
+}
+
+
+int TreeItem::id() const
+{
+    return m_id;
+}
+
+void TreeItem::setId(int newId)
+{
+    m_id = newId;
+}
+
+int TreeItem::parentTaskId() const
+{
+    return m_parentTaskId;
+}
+
+void TreeItem::setParentTaskId(int newParentTaskId)
+{
+    m_parentTaskId = newParentTaskId;
+}
+
+const QString &TreeItem::title() const
+{
+    return m_title;
+}
+
+void TreeItem::setTitle(const QString &newTitle)
+{
+    m_title = newTitle;
+}
+
+const QString &TreeItem::description() const
+{
+    return m_description;
+}
+
+void TreeItem::setDescription(const QString &newDescription)
+{
+    m_description = newDescription;
+}
+
+const QDate &TreeItem::dueDate() const
+{
+    return m_dueDate;
+}
+
+void TreeItem::setDueDate(const QDate &newDueDate)
+{
+    m_dueDate = newDueDate;
+}
+
+TaskStatus TreeItem::status() const
+{
+    return m_status;
+}
+
+void TreeItem::setStatus(TaskStatus newStatus)
+{
+    m_status = newStatus;
+}
+
+int TreeItem::assigneeId() const
+{
+    return m_assigneeId;
+}
+
+void TreeItem::setAssigneeId(int newAssigneeId)
+{
+    m_assigneeId = newAssigneeId;
 }
