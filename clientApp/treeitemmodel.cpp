@@ -33,8 +33,9 @@ TreeItemModel::TreeItemModel(QObject *parent)
     QByteArray jsonData = jsonLines.toUtf8();
     QJsonDocument doc = QJsonDocument::fromJson(jsonData);
 
-    if (doc.isNull() || !doc.isArray()) {
-        qWarning() << "Failed to parse JSON or not an array";
+    if (doc.isNull() || !doc.isArray())
+    {
+        qCritical() << "TreeItemModel():" << "Failed to parse JSON or not an array";
         return;
     }
 
@@ -77,7 +78,7 @@ QModelIndex TreeItemModel::index(int row, int column, const QModelIndex &parent)
 {
     if (parent.isValid() && parent.column() != 0)
     {
-        qCritical() << "! parent.isValid() or parent.column() == 0";
+        qCritical() << "index():" << "! parent.isValid() or parent.column() == 0";
         return {};
     }
 
@@ -122,7 +123,7 @@ int TreeItemModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid() && parent.column() > 0)
     {
-        qCritical() << "! parent.isValid() or parent.column() == 0";
+        qCritical() << "rowCount():" << "! parent.isValid() or parent.column() == 0";
         return 0;
     }
 
@@ -139,10 +140,38 @@ int TreeItemModel::columnCount(const QModelIndex &parent) const
 
 QVariant TreeItemModel::data(const QModelIndex &index, int role) const
 {
+    if (!index.isValid())
+    {
+        qCritical() << "data():" << "! index.isValid()";
+        return {};
+    }
+    if (role != Qt::DisplayRole && role != Qt::EditRole)
+    {
+        qCritical() << "data():" << "role != Qt::DisplayRole and role != Qt::EditRole";
+        return {};
+    }
+
+    TreeItem *item = getItem(index);
+    return item->data(index.column());
 }
 
 bool TreeItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+    if (role != Qt::EditRole)
+    {
+        qCritical() << "setData():" << "role != Qt::EditRole";
+        return false;
+    }
+
+    TreeItem *item = getItem(index);
+    bool result = item->setData(index.column(), value);
+
+    if (result)
+    {
+        emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
+    }
+
+    return result;
 
 }
 
@@ -163,14 +192,39 @@ QVariant TreeItemModel::headerData(int section, Qt::Orientation orientation, int
     return QVariant();
 }
 
-bool TreeItemModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role)
-{
+//bool TreeItemModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role)
+//{
+//    if (orientation == Qt::Horizontal && role == Qt::EditRole)
+//    {
+//        switch (section)
+//        {
+//            case 0
+//                m_headerData[0] = value.toString();
+//                break;
+//            case 1:
+//                m_headerData[1] = value.toString();
+//                break;
+//            case 2:
+//                m_headerData[2] = value.toString();
+//                break;
+//            case 3:
+//                m_headerData[3] = value.toString();
+//                break;
+//            default:
+//                return false;
+//        }
 
-}
+//        emit headerDataChanged(orientation, section, section);
+
+//        return true;
+//    }
+
+//    return false;
+//}
+
 
 bool TreeItemModel::insertRows(int row, int count, const QModelIndex &parent)
 {
-
 }
 
 bool TreeItemModel::removeRows(int row, int count, const QModelIndex &parent)
