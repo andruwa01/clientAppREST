@@ -45,6 +45,9 @@ TreeItemModel::TreeItemModel(QObject *parent)
     for (const QJsonValue &value : taskArray)
     {
         QJsonObject taskJsonObj = value.toObject();
+
+//        qDebug() << "taskJsonObj:\n" << taskJsonObj;
+
         int id = taskJsonObj["id"].toInt();
 
         TreeItem *p_parentItem = nullptr;
@@ -60,6 +63,13 @@ TreeItemModel::TreeItemModel(QObject *parent)
 
         p_parentItem->insertChildren(p_parentItem->childCount(), 1);
         TreeItem *insertedItem = p_parentItem->child(p_parentItem->childCount() - 1);
+
+        qDebug() << "\n<==============================>";
+        qDebug() << "BEGIN JSON";
+        qDebug() << taskJsonObj;
+        qDebug() << "END JSON";
+        qDebug() << "<==============================>\n";
+
 
         // insert json in insertedItem
         insertedItem->setTaskDataFromJson(taskJsonObj);
@@ -147,7 +157,8 @@ QVariant TreeItemModel::data(const QModelIndex &index, int role) const
     }
     if (role != Qt::DisplayRole && role != Qt::EditRole)
     {
-        qCritical() << "data():" << "role != Qt::DisplayRole and role != Qt::EditRole";
+//        qCritical() << "role == " << role;
+//        qCritical() << "data():" << "role != Qt::DisplayRole and role != Qt::EditRole";
         return {};
     }
 
@@ -169,6 +180,10 @@ bool TreeItemModel::setData(const QModelIndex &index, const QVariant &value, int
     if (result)
     {
         emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
+    }
+    else
+    {
+        qCritical() << "item->setData():" << "! result";
     }
 
     return result;

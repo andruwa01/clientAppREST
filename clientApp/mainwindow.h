@@ -1,7 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "treemodel.h"
+//#include "treemodel.h"
+#include "treeitemmodel.h"
 
 #include <QMainWindow>
 #include <QFile>

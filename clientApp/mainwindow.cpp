@@ -10,47 +10,57 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    const QStringList headers({tr("Title"), tr("Description"), tr("Due date"), tr("Status"), tr("Overdue"), tr("Employee")});
-    qDebug() << "headers: " << headers;
+//    const QStringList headers({tr("Title"), tr("Description"), tr("Due date"), tr("Status"), tr("Overdue"), tr("Employee")});
+//    qDebug() << "headers: " << headers;
 
-    // get JSON from REST API
+//    // get JSON from REST API
 
-    // read json from the file
-    QFile file(":/testTasks.json");
-    const bool res = file.open(QIODevice::ReadOnly | QIODevice::Text);
-    Q_ASSERT_X(res, Q_FUNC_INFO, "failed to open json file");
-    if (!res) return;
+//    // read json from the file
+//    QFile file(":/testTasks.json");
+//    const bool res = file.open(QIODevice::ReadOnly | QIODevice::Text);
+//    Q_ASSERT_X(res, Q_FUNC_INFO, "failed to open json file");
+//    if (!res) return;
 
-    // read json to model
-    QString jsonLines = QString::fromUtf8(file.readAll());
+//    // read json to model
+//    QString jsonLines = QString::fromUtf8(file.readAll());
 
-    qDebug() << "json contents:\n" << jsonLines;
+//    qDebug() << "json contents:\n" << jsonLines;
 
-    // form json to valid format
-    if (jsonLines.startsWith("\"") && jsonLines.endsWith("\""))
-    {
-        jsonLines = jsonLines.mid(1, jsonLines.length() - 2);  // remove outer ""
-    }
-    jsonLines.replace("\\\"", "\"");  // replace \" with " in str
-    jsonLines = jsonLines.trimmed();  // remove spaces and \n
+//    // form json to valid format
+//    if (jsonLines.startsWith("\"") && jsonLines.endsWith("\""))
+//    {
+//        jsonLines = jsonLines.mid(1, jsonLines.length() - 2);  // remove outer ""
+//    }
+//    jsonLines.replace("\\\"", "\"");  // replace \" with " in str
+//    jsonLines = jsonLines.trimmed();  // remove spaces and \n
 
-    qDebug() << "json contents after:\n" << jsonLines;
+//    qDebug() << "json contents after:\n" << jsonLines;
 
-    // try to parse
-    QByteArray jsonData = jsonLines.toUtf8();
-    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
-    doc.isNull() ? qDebug() << "fail to parse json" : qDebug() << "success parse json, size: " << doc.array().size();
+//    // try to parse
+//    QByteArray jsonData = jsonLines.toUtf8();
+//    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+//    doc.isNull() ? qDebug() << "fail to parse json" : qDebug() << "success parse json, size: " << doc.array().size();
 
-    // load json to model
-    auto *model = new TreeModel(headers, jsonData);
+//    // load json to model
+//    auto *model = new TreeModel(headers, jsonData);
+//    ui->view->setModel(model);
+//    for (int column = 0; column < model->columnCount(); column++)
+//    {
+//        ui->view->resizeColumnToContents(column);
+//    }
+//    ui->view->expandAll();
+
+//    file.close();
+
+    auto *model = new TreeItemModel();
     ui->view->setModel(model);
+
     for (int column = 0; column < model->columnCount(); column++)
     {
         ui->view->resizeColumnToContents(column);
     }
     ui->view->expandAll();
 
-    file.close();
 
     connect(ui->exitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
     connect(ui->view->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::updateActions);
