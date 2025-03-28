@@ -78,7 +78,7 @@ QVariant TreeItem::data(int column) const
     }
 }
 
-bool TreeItem::insertChildren(int position, int count, int columns)
+bool TreeItem::insertChildren(int position, int count)
 {
     if (position < 0 || position > qsizetype(childTasks.size()))
     {
@@ -87,8 +87,8 @@ bool TreeItem::insertChildren(int position, int count, int columns)
 
     for (int row = 0; row < count; ++row)
     {
-        QVariantList data(columns);
-        childTasks.insert(childTasks.cbegin() + position, std::make_unique<TreeItem>(data, this));
+        QJsonObject obj;
+        childTasks.insert(childTasks.cbegin() + position, std::make_unique<TreeItem>(obj, this));
     }
 
     return true;
