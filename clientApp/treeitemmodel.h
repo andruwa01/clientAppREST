@@ -35,6 +35,8 @@ public:
     bool insertRows(int row, int count, const QModelIndex &parent) override;
     bool removeRows(int row, int count, const QModelIndex &parent) override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
+private:
+    TreeItem *getItem(const QModelIndex &index) const;
 };
 
 #endif // TREEITEMMODEL_H

@@ -47,7 +47,7 @@ int TreeItem::columnCount() const
     return DISPLAY_COLUMNS;
 }
 
-int TreeItem::row() const
+int TreeItem::rowInParentChilds() const
 {
     if (!p_parentTask)
     {

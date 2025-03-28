@@ -31,7 +31,7 @@ public:
     bool insertChildren(int position, int count);
     TreeItem *parent();
     bool removeChildren(int position, int count);
-    int row() const;
+    int rowInParentChilds() const;
     bool setData(int column, const QVariant &value);
 
     // getters and setters

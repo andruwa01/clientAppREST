@@ -71,33 +71,74 @@ TreeItemModel::TreeItemModel(QObject *parent)
 }
 
 TreeItemModel::~TreeItemModel()
-{
-
-}
+{}
 
 QModelIndex TreeItemModel::index(int row, int column, const QModelIndex &parent) const
 {
+    if (parent.isValid() && parent.column() != 0)
+    {
+        qCritical() << "! parent.isValid() or parent.column() == 0";
+        return {};
+    }
 
+    TreeItem *parentItem = getItem(parent);
+    if (!parentItem)
+    {
+        return {};
+    }
+
+    if (auto *childItem = parentItem->child(row))
+    {
+        return createIndex(row, column, childItem);
+    }
+
+    return {};
 }
 
 QModelIndex TreeItemModel::parent(const QModelIndex &child) const
 {
+    if (!child.isValid())
+    {
+        return {};
+    }
 
+    TreeItem *childItem = getItem(child);
+    TreeItem *parentItem = childItem ? childItem->parent() : nullptr;
+
+    QModelIndex returnIndex;
+    if (parentItem != p_rootItem.get() && parentItem != nullptr)
+    {
+        returnIndex = createIndex(parentItem->rowInParentChilds(), 0, parentItem);
+    }
+    else
+    {
+        returnIndex = QModelIndex{};
+    }
+
+    return returnIndex;
 }
 
 int TreeItemModel::rowCount(const QModelIndex &parent) const
 {
+    if (parent.isValid() && parent.column() > 0)
+    {
+        qCritical() << "! parent.isValid() or parent.column() == 0";
+        return 0;
+    }
 
+    const TreeItem *parentItem = getItem(parent);
+
+    return parentItem ? parentItem->childCount() : 0;
 }
 
 int TreeItemModel::columnCount(const QModelIndex &parent) const
 {
-
+    Q_UNUSED(parent);
+    return  p_rootItem->columnCount();
 }
 
 QVariant TreeItemModel::data(const QModelIndex &index, int role) const
 {
-
 }
 
 bool TreeItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
@@ -140,4 +181,17 @@ bool TreeItemModel::removeRows(int row, int count, const QModelIndex &parent)
 Qt::ItemFlags TreeItemModel::flags(const QModelIndex &index) const
 {
 
+}
+
+TreeItem *TreeItemModel::getItem(const QModelIndex &index) const
+{
+    if (index.isValid())
+    {
+        if (auto *item = static_cast<TreeItem*>(index.internalPointer()))
+        {
+            return item;
+        }
+    }
+
+    return p_rootItem.get();
 }
