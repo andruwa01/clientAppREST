@@ -22,14 +22,20 @@ int TreeItem::childCount() const
 int TreeItem::row() const
 {
     if (!p_parentTask)
+    {
         return 0;
+    }
+
     const auto it = std::find_if(p_parentTask->childTasks.cbegin(), p_parentTask->childTasks.cend(),
-                                 [this](const std::unique_ptr<TreeItem> &treeItem) {
+                                 [this](const std::unique_ptr<TreeItem> &treeItem)
+    {
         return treeItem.get() == this;
     });
 
     if (it != p_parentTask->childTasks.cend())
+    {
         return std::distance(p_parentTask->childTasks.cbegin(), it);
+    }
     Q_ASSERT(false); // should not happen
     return -1;
 }
@@ -47,12 +53,14 @@ QVariant TreeItem::data(int column) const
 bool TreeItem::insertChildren(int position, int count, int columns)
 {
     if (position < 0 || position > qsizetype(childTasks.size()))
+    {
         return false;
+    }
 
-    for (int row = 0; row < count; ++row) {
+    for (int row = 0; row < count; ++row)
+    {
         QVariantList data(columns);
-        childTasks.insert(childTasks.cbegin() + position,
-                std::make_unique<TreeItem>(data, this));
+        childTasks.insert(childTasks.cbegin() + position, std::make_unique<TreeItem>(data, this));
     }
 
     return true;
@@ -66,10 +74,14 @@ TreeItem *TreeItem::parent()
 bool TreeItem::removeChildren(int position, int count)
 {
     if (position < 0 || position + count > qsizetype(childTasks.size()))
+    {
         return false;
+    }
 
-    for (int row = 0; row < count; ++row)
+    for (int row = 0; row < count; row++)
+    {
         childTasks.erase(childTasks.cbegin() + position);
+    }
 
     return true;
 }
@@ -77,7 +89,9 @@ bool TreeItem::removeChildren(int position, int count)
 bool TreeItem::setData(int column, const QVariant &value)
 {
     if (column < 0 || column >= taskData.size())
+    {
         return false;
+    }
 
     taskData[column] = value;
     return true;

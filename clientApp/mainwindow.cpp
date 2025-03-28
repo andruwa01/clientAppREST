@@ -20,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
     const bool res = file.open(QIODevice::ReadOnly | QIODevice::Text);
     Q_ASSERT_X(res, Q_FUNC_INFO, "failed to open json file");
     if (!res) return;
+
     // read json to model
     QString jsonLines = QString::fromUtf8(file.readAll());
 
@@ -38,7 +39,6 @@ MainWindow::MainWindow(QWidget *parent)
     // try to parse
     QByteArray jsonData = jsonLines.toUtf8();
     QJsonDocument doc = QJsonDocument::fromJson(jsonData);
-
     doc.isNull() ? qDebug() << "fail to parse json" : qDebug() << "success parse json, size: " << doc.array().size();
 
     // load json to model
@@ -144,6 +144,7 @@ void MainWindow::updateActions()
 
         const int row = ui->view->selectionModel()->currentIndex().row();
         const int column = ui->view->selectionModel()->currentIndex().column();
+
         if (ui->view->selectionModel()->currentIndex().parent().isValid())
         {
             statusBar()->showMessage(tr("Position: (%1,%2)").arg(row).arg(column));
