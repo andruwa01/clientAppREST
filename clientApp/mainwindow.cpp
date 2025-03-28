@@ -99,22 +99,27 @@ void MainWindow::insertSubtask()
         index = index.siblingAtColumn(0);
     }
 
+    // insert new task
     if (!model->insertRow(0, index))
     {
         qCritical() << "model->insertRow() failed";
         return;
     }
 
+    // set data to a new task
     for (int column = 0; column < model->columnCount(index); column++)
     {
         const QModelIndex child = model->index(0, column, index);
         model->setData(child, QVariant(tr("[No data]")), Qt::EditRole);
+
+        // set header if there is not
         if (!model->headerData(column, Qt::Horizontal).isValid())
         {
             model->setHeaderData(column, Qt::Horizontal, QVariant(tr("[No header]")), Qt::EditRole);
         }
     }
 
+    // move user selection to inserted task
     ui->view->selectionModel()->setCurrentIndex(model->index(0, 0, index), QItemSelectionModel::ClearAndSelect);
     updateActions();
 }
