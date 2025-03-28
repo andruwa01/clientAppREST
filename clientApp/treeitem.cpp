@@ -3,6 +3,11 @@
 TreeItem::TreeItem(const QJsonObject &taskData, TreeItem *p_parentTask)
     : p_parentTask(p_parentTask)
 {
+    setTaskDataFromJson(taskData);
+}
+
+void TreeItem::setTaskDataFromJson(const QJsonObject &taskData)
+{
     m_id = taskData.contains("id") ? taskData["id"].toInt() : 0;
     m_parentTaskId = taskData.contains("parent_task_id") ? taskData["parent_task_id"].toInt() : -1;
     m_assigneeId = taskData.contains("assignee_id") ? taskData["assignee_id"].toInt() : -1;

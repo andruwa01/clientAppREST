@@ -20,6 +20,8 @@ class TreeItem
 public:
     explicit TreeItem(const QJsonObject &taskData, TreeItem *p_parentTask = nullptr);
 
+    void setTaskDataFromJson(const QJsonObject &taskData);
+
     // for item model
 
     TreeItem *child(int number);
