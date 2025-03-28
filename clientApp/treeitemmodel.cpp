@@ -225,16 +225,44 @@ QVariant TreeItemModel::headerData(int section, Qt::Orientation orientation, int
 
 bool TreeItemModel::insertRows(int row, int count, const QModelIndex &parent)
 {
+    TreeItem *parentItem = getItem(parent);
+    if (!parentItem)
+    {
+        qCritical() << "insertRows()" << "!parentItem";
+        return false;
+    }
+
+    beginInsertRows(parent, row, row + count - 1);
+    const bool success = parentItem->insertChildren(row, count);
+    endInsertRows();
+
+    return success;
 }
 
 bool TreeItemModel::removeRows(int row, int count, const QModelIndex &parent)
 {
+    TreeItem *parentItem = getItem(parent);
+    if (!parentItem)
+    {
+        return false;
+    }
 
+    beginRemoveRows(parent, row, row + count - 1);
+    const bool success = parentItem->removeChildren(row, count);
+    endRemoveRows();
+
+    return success;
 }
 
 Qt::ItemFlags TreeItemModel::flags(const QModelIndex &index) const
 {
+    if (!index.isValid())
+    {
+        qCritical() << "flags():" << "!index.isValid()";
+        return Qt::NoItemFlags;
+    }
 
+    return Qt::ItemIsEditable | QAbstractItemModel::flags(index);
 }
 
 TreeItem *TreeItemModel::getItem(const QModelIndex &index) const
