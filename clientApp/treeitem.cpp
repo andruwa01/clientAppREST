@@ -91,8 +91,7 @@ bool TreeItem::insertChildren(int position, int count)
 
     for (int row = 0; row < count; row++)
     {
-        QJsonObject obj;
-        childTasks.insert(childTasks.cbegin() + position, std::make_unique<TreeItem>(obj, this));
+        childTasks.insert(childTasks.cbegin() + position, std::make_unique<TreeItem>(QJsonObject(), this));
     }
 
     return true;

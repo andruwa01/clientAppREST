@@ -1,8 +1,14 @@
 #ifndef TREEITEMMODEL_H
 #define TREEITEMMODEL_H
 
-#include <QAbstractItemModel>
 #include "treeitem.h"
+
+#include <QAbstractItemModel>
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonArray>
+
+#define TEST_JSON_INPUT
 
 class TreeItemModel : public QAbstractItemModel
 {
@@ -12,8 +18,9 @@ public:
 
     explicit TreeItemModel(QObject *parent = nullptr);
     ~TreeItemModel() override;
+
 private:
-    TreeItem *rootItem;
+    std::unique_ptr<TreeItem> p_rootItem;
 
     // QAbstractItemModel interface
 public:
