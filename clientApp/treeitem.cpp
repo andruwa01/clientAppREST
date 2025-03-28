@@ -3,22 +3,21 @@
 TreeItem::TreeItem(const QJsonObject &taskData, TreeItem *p_parentTask)
     : p_parentTask(p_parentTask)
 {
-    m_id = taskData["id"].toInt();
-    m_parentTaskId = taskData["parent_task_id"].isNull() ? -1 : taskData["parent_task_id"].toInt();
-    m_assigneeId = taskData["assignee_id"].isNull() ? -1 : taskData["assignee_id"].toInt();
+    m_id = taskData.contains("id") ? taskData["id"].toInt() : 0;
+    m_parentTaskId = taskData.contains("parent_task_id") ? taskData["parent_task_id"].toInt() : -1;
+    m_assigneeId = taskData.contains("assignee_id") ? taskData["assignee_id"].toInt() : -1;
 
-    // displayed data
-    m_title = taskData["title"].toString();
-    m_description = taskData["description"].toString();
-    QString dueDateStr = taskData["due_date"].toString();
+    // data to display
+    m_title = taskData.contains("title") ? taskData["title"].toString() : QString();
+    m_description = taskData.contains("description") ? taskData["description"].toString() : QString();
+    QString dueDateStr = taskData.contains("due_date") ? taskData["due_date"].toString() : QString();
     m_dueDate = QDate::fromString(dueDateStr, DATE_FORMAT);
-    if (!m_dueDate.isValid())
-    {
+    if (!m_dueDate.isValid()) {
         qWarning() << "invalid date format:" << dueDateStr;
         m_dueDate = QDate();
     }
 
-    QString statusStr = taskData["status"].toString();
+    QString statusStr = taskData.contains("status") ? taskData["status"].toString() : QString();
     m_status = stringToStatus(statusStr);
 }
 
@@ -85,7 +84,7 @@ bool TreeItem::insertChildren(int position, int count)
         return false;
     }
 
-    for (int row = 0; row < count; ++row)
+    for (int row = 0; row < count; row++)
     {
         QJsonObject obj;
         childTasks.insert(childTasks.cbegin() + position, std::make_unique<TreeItem>(obj, this));
