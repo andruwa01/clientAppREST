@@ -99,16 +99,9 @@ void MainWindow::insertSubtask()
         index = index.siblingAtColumn(0);
     }
 
-    if (model->columnCount(index) == 0)
-    {
-        if (!model->insertColumn(0, index))
-        {
-            return;
-        }
-    }
-
     if (!model->insertRow(0, index))
     {
+        qCritical() << "model->insertRow() failed";
         return;
     }
 
