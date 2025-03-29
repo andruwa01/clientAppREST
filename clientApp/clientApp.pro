@@ -16,6 +16,7 @@ SOURCES += \
 #    treemodel.cpp
 
 HEADERS += \
+    helpdefines.h \
     mainwindow.h \
     treeitem.h \
     treeitemmodel.h \

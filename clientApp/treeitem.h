@@ -1,12 +1,11 @@
 #ifndef TREEITEM_H
 #define TREEITEM_H
 
+#include "helpdefines.h"
+
 #include <QVariant>
 #include <QDate>
 #include <QJsonObject>
-
-#define DATE_FORMAT "yyyy-MM-dd"
-#define DISPLAY_COLUMNS 4
 
 enum class TaskStatus
 {
@@ -61,19 +60,20 @@ public:
 
     TaskStatus stringToStatus(const QString &status) const;
     QString statusToString(TaskStatus status) const;
+    void printTaskData();
 
 private:
     std::vector<std::unique_ptr<TreeItem>> childTasks;
 
-    int m_id;
-    int m_parentTaskId;
-    int m_assigneeId;
+    int m_id = 0;
+    int m_parentTaskId = 0;
+    int m_assigneeId = 0;
 
     // displayed data		// column
-    QString m_title;		// 0
-    QString m_description;  // 1
-    QDate m_dueDate;		// 2
-    TaskStatus m_status;	// 3
+    QString m_title = "";		// 0
+    QString m_description = "";  // 1
+    QDate m_dueDate = QDate::fromString("0001-01-01", DATE_FORMAT);		// 2
+    TaskStatus m_status = stringToStatus("new");	// 3
 
     // ptr to parent task
     TreeItem *p_parentTask;

@@ -8,6 +8,14 @@ TreeItem::TreeItem(const QJsonObject &taskData, TreeItem *p_parentTask)
 
 void TreeItem::setTaskDataFromJson(const QJsonObject &taskData)
 {
+    if (taskData.empty())
+    {
+//        qDebug() << "\nsetTaskDataFromJson():" << "taskData.empty()";
+//        printTaskData();
+
+        return;
+    }
+
     m_id = taskData.contains("id") ? taskData["id"].toInt() : 0;
     m_parentTaskId = taskData.contains("parent_task_id") ? taskData["parent_task_id"].toInt() : -1;
     m_assigneeId = taskData.contains("assignee_id") ? taskData["assignee_id"].toInt() : -1;
@@ -16,8 +24,10 @@ void TreeItem::setTaskDataFromJson(const QJsonObject &taskData)
     m_title = taskData.contains("title") ? taskData["title"].toString() : QString();
     m_description = taskData.contains("description") ? taskData["description"].toString() : QString();
     QString dueDateStr = taskData.contains("due_date") ? taskData["due_date"].toString() : QString();
+
     m_dueDate = QDate::fromString(dueDateStr, DATE_FORMAT);
-    if (!m_dueDate.isValid()) {
+    if (!m_dueDate.isValid())
+    {
         qWarning() << "invalid date format:" << dueDateStr;
         m_dueDate = QDate();
     }
@@ -188,6 +198,18 @@ QString TreeItem::statusToString(TaskStatus status) const
         case TaskStatus::Completed: return "Completed";
         default: return "unknown";
     }
+}
+
+void TreeItem::printTaskData()
+{
+    qDebug() << "\nTreeItem private members:";
+    qDebug() << "m_id:" << m_id;
+    qDebug() << "m_parentTaskId:" << m_parentTaskId;
+    qDebug() << "m_assigneeId:" << m_assigneeId;
+    qDebug() << "m_title:" << m_title;
+    qDebug() << "m_description:" << m_description;
+    qDebug() << "m_dueDate:" << m_dueDate;
+    qDebug() << "m_status:" << statusToString(m_status);
 }
 
 

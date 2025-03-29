@@ -64,12 +64,7 @@ TreeItemModel::TreeItemModel(QObject *parent)
         p_parentItem->insertChildren(p_parentItem->childCount(), 1);
         TreeItem *insertedItem = p_parentItem->child(p_parentItem->childCount() - 1);
 
-        qDebug() << "\n<==============================>";
-        qDebug() << "BEGIN JSON";
-        qDebug() << taskJsonObj;
-        qDebug() << "END JSON";
-        qDebug() << "<==============================>\n";
-
+        PRINT_DEBUG_JSON(taskJsonObj)
 
         // insert json in insertedItem
         insertedItem->setTaskDataFromJson(taskJsonObj);

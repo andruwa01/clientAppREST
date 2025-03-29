@@ -2,13 +2,12 @@
 #define TREEITEMMODEL_H
 
 #include "treeitem.h"
+#include "helpdefines.h"
 
 #include <QAbstractItemModel>
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonArray>
-
-#define TEST_JSON_INPUT
 
 class TreeItemModel : public QAbstractItemModel
 {
