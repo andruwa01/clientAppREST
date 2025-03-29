@@ -181,10 +181,10 @@ QVariant TreeItemModel::headerData(int section, Qt::Orientation orientation, int
     {
         switch(section)
         {
-            case 0: return "Title";
-            case 1: return "Description";
-            case 2: return "Due date";
-            case 3: return "Status";
+            case COLUMN_TITLE: 		 return "Title";
+            case COLUMN_DESCRIPTION: return "Description";
+            case COLUMN_DUE_DATE: 	 return "Due date";
+            case COLUMN_STATUS: 	 return "Status";
             default: return QVariant();
         }
     }
