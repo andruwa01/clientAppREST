@@ -112,7 +112,6 @@ int TreeItemModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid() && parent.column() > 0)
     {
-        qCritical() << Q_FUNC_INFO << "! parent.isValid() or parent.column() == 0";
         return 0;
     }
 
