@@ -3,6 +3,11 @@
 
 // Constants
 
+#define COLUMN_TITLE       0
+#define COLUMN_DESCRIPTION 1
+#define COLUMN_DUE_DATE    2
+#define COLUMN_STATUS 	   3
+
 #define DATE_FORMAT "yyyy-MM-dd"
 #define DISPLAY_COLUMNS 4
 

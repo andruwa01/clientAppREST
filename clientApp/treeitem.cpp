@@ -94,12 +94,11 @@ QVariant TreeItem::data(int column) const
 {
     switch(column)
     {
-    case 0: return m_title;
-    case 1: return m_description;
-    case 2: return m_dueDate.toString(DATE_FORMAT);
-    case 3: return statusToString(m_status);
-    default:
-        qWarning() << Q_FUNC_INFO << "unknown column:" << column;
+        case COLUMN_TITLE: 		 return m_title;
+        case COLUMN_DESCRIPTION: return m_description;
+        case COLUMN_DUE_DATE:    return m_dueDate.toString(DATE_FORMAT);
+        case COLUMN_STATUS: 	 return statusToString(m_status);
+        default: qWarning() << Q_FUNC_INFO << ": unknown column:" << column;
         return QVariant();
     }
 }
@@ -143,13 +142,13 @@ bool TreeItem::setData(int column, const QVariant &value)
 {
     switch (column)
     {
-    case 0:
+    case COLUMN_TITLE:
         m_title = value.toString();
         break;
-    case 1:
+    case COLUMN_DESCRIPTION:
         m_description = value.toString();
         break;
-    case 2:
+    case COLUMN_DUE_DATE:
     {
         QString dateStr = value.toString();
         QDate date = QDate::fromString(dateStr, DATE_FORMAT);
@@ -163,7 +162,7 @@ bool TreeItem::setData(int column, const QVariant &value)
         }
         break;
     }
-    case 3:
+    case COLUMN_STATUS:
     {
         QString statusStr = value.toString();
         m_status = stringToStatus(statusStr);
