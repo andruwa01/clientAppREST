@@ -250,6 +250,7 @@ bool TreeItemModel::insertRows(int row, int count, const QModelIndex &parent)
     beginInsertRows(parent, row, row + count - 1);
     const bool success = parentItem->insertChildren(row, count);
     endInsertRows();
+    qDebug() << "insertRows()" << "parentItem->insertChildren(row, count) success:" << success;
 
     return success;
 }
