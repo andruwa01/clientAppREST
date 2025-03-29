@@ -59,26 +59,28 @@ public:
 
     void setTaskDataFromJson(const QJsonObject &taskData);
     QJsonObject taskDataToJson() const;
-
-    TaskStatus stringToStatus(const QString &status) const;
-    QString statusToString(TaskStatus status) const;
     void printTaskData();
 
 private:
-    std::vector<std::unique_ptr<TreeItem>> childTasks;
+    // helper functions
+    TaskStatus stringToStatus(const QString &status) const;
+    QString statusToString(TaskStatus status) const;
 
+    // ptrs to child tasks
+    std::vector<std::unique_ptr<TreeItem>> childTasks;
+    // ptr to parent task
+    TreeItem *p_parentTask = nullptr;
+
+private: // data
     int m_id = -1;
     int m_parentTaskId = -1;
     int m_assigneeId = -1;
 
-    // displayed data		// column
-    QString m_title = "";		// 0
-    QString m_description = "";  // 1
-    QDate m_dueDate = QDate::fromString("0001-01-01", DATE_FORMAT);		// 2
-    TaskStatus m_status = stringToStatus("new");	// 3
-
-    // ptr to parent task
-    TreeItem *p_parentTask;
+    // displayed data						// column
+    QString m_title = "";					// 0
+    QString m_description = "";  			// 1
+    QDate m_dueDate = QDate();				// 2
+    TaskStatus m_status = TaskStatus::New;	// 3
 };
 
 #endif // TREEITEM_H
