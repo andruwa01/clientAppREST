@@ -118,7 +118,7 @@ QModelIndex TreeItemModel::parent(const QModelIndex &child) const
     }
     else
     {
-        returnIndex = QModelIndex{};
+        returnIndex = QModelIndex();
     }
 
     return returnIndex;
@@ -150,15 +150,14 @@ QVariant TreeItemModel::data(const QModelIndex &index, int role) const
         qCritical() << "data():" << "! index.isValid()";
         return {};
     }
-    if (role != Qt::DisplayRole && role != Qt::EditRole)
+
+    if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
-//        qCritical() << "role == " << role;
-//        qCritical() << "data():" << "role != Qt::DisplayRole and role != Qt::EditRole";
-        return {};
+        TreeItem *item = getItem(index);
+        return item->data(index.column());
     }
 
-    TreeItem *item = getItem(index);
-    return item->data(index.column());
+    return {};
 }
 
 bool TreeItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
