@@ -197,9 +197,9 @@ QString TreeItem::statusToString(TaskStatus status) const
 {
     switch (status)
     {
-        case TaskStatus::New: 		 return "New";
-        case TaskStatus::InProgress: return "In Progress";
-        case TaskStatus::Completed:  return "Completed";
+        case TaskStatus::New: 		 return "new";
+        case TaskStatus::InProgress: return "in_progress";
+        case TaskStatus::Completed:  return "completed";
         default: 					 return "unknown";
     }
 }
