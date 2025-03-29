@@ -40,8 +40,8 @@ QJsonObject TreeItem::taskDataToJson() const
 {
     QJsonObject jsonObj;
     jsonObj["id"] = m_id;
-    jsonObj["parent_task_id"] = m_parentTaskId != -1 ? m_parentTaskId : QJsonValue::Null;
-    jsonObj["assignee_id"] = m_assigneeId != -1 ? m_assigneeId : QJsonValue::Null;
+    jsonObj["parent_task_id"] = (m_parentTaskId != -1) ? m_parentTaskId : QJsonValue::Null;
+    jsonObj["assignee_id"] = (m_assigneeId != -1) ? m_assigneeId : QJsonValue::Null;
     jsonObj["title"] = m_title;
     jsonObj["description"] = m_description;
     jsonObj["due_date"] = m_dueDate.toString(DATE_FORMAT);
