@@ -184,20 +184,12 @@ bool TreeItem::setData(int column, const QVariant &value)
 
 TaskStatus TreeItem::stringToStatus(const QString &status) const
 {
-    if (status == "new")
-    {
-        return TaskStatus::New;
-    }
-    if (status == "in_progress")
-    {
-        return TaskStatus::InProgress;
-    }
-    if (status == "completed")
-    {
-        return TaskStatus::Completed;
-    }
+    if (status == "new") 		 return TaskStatus::New;
+    if (status == "in_progress") return TaskStatus::InProgress;
+    if (status == "completed")   return TaskStatus::Completed;
 
     qDebug() << "stringToStatus(): unkonown format of status: " << status;
+
     return TaskStatus::New;
 }
 
@@ -205,10 +197,10 @@ QString TreeItem::statusToString(TaskStatus status) const
 {
     switch (status)
     {
-        case TaskStatus::New: return "New";
+        case TaskStatus::New: 		 return "New";
         case TaskStatus::InProgress: return "In Progress";
-        case TaskStatus::Completed: return "Completed";
-        default: return "unknown";
+        case TaskStatus::Completed:  return "Completed";
+        default: 					 return "unknown";
     }
 }
 
