@@ -99,7 +99,7 @@ QVariant TreeItem::data(int column) const
     case 2: return m_dueDate.toString(DATE_FORMAT);
     case 3: return statusToString(m_status);
     default:
-        qWarning() << "unknown column:" << column;
+        qWarning() << Q_FUNC_INFO << "unknown column:" << column;
         return QVariant();
     }
 }

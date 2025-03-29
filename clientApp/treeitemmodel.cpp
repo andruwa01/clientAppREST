@@ -67,7 +67,7 @@ QModelIndex TreeItemModel::index(int row, int column, const QModelIndex &parent)
 {
     if (parent.isValid() && parent.column() != 0)
     {
-        qCritical() << "index():" << "! parent.isValid() or parent.column() == 0";
+        qCritical() << Q_FUNC_INFO << ": parent.isValid() or parent.column() == 0";
         return {};
     }
 
@@ -112,7 +112,7 @@ int TreeItemModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid() && parent.column() > 0)
     {
-        qCritical() << "rowCount():" << "! parent.isValid() or parent.column() == 0";
+        qCritical() << Q_FUNC_INFO << "! parent.isValid() or parent.column() == 0";
         return 0;
     }
 
@@ -131,7 +131,7 @@ QVariant TreeItemModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
     {
-        qCritical() << "data():" << "! index.isValid()";
+        qCritical() << Q_FUNC_INFO << "invalid index";
         return {};
     }
 
@@ -148,7 +148,7 @@ bool TreeItemModel::setData(const QModelIndex &index, const QVariant &value, int
 {
     if (!index.isValid())
     {
-        qCritical() << "setData():" << "invalid index";
+        qCritical() << Q_FUNC_INFO << "invalid index";
         return false;
     }
 
@@ -165,13 +165,13 @@ bool TreeItemModel::setData(const QModelIndex &index, const QVariant &value, int
         }
         else
         {
-            qCritical() << "setData():" << "! result";
+            qCritical() << Q_FUNC_INFO << "item->setData() returns false";
         }
 
         return result;
     }
 
-    qCritical() << "setData():" << "no role handler for role" << role;
+    qCritical() << Q_FUNC_INFO << "no role handler for role" << role;
 
     return result;
 }
@@ -229,14 +229,14 @@ bool TreeItemModel::insertRows(int row, int count, const QModelIndex &parent)
     TreeItem *parentItem = getItem(parent);
     if (!parentItem)
     {
-        qCritical() << "insertRows()" << "!parentItem";
+        qCritical() << Q_FUNC_INFO << "parentItem == nullptr";
         return false;
     }
 
     beginInsertRows(parent, row, row + count - 1);
     const bool success = parentItem->insertChildren(row, count);
     endInsertRows();
-    qDebug() << "insertRows()" << "parentItem->insertChildren(row, count) success:" << success;
+    qDebug() << Q_FUNC_INFO << ": parentItem->insertChildren(row, count) success:" << success;
 
     return success;
 }
@@ -260,7 +260,7 @@ Qt::ItemFlags TreeItemModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
     {
-        qCritical() << "flags():" << "!index.isValid()";
+        qCritical() << Q_FUNC_INFO << "invalid index";
         return Qt::NoItemFlags;
     }
 
