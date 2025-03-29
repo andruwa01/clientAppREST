@@ -10,20 +10,18 @@ void TreeItem::setTaskDataFromJson(const QJsonObject &taskData)
 {
     if (taskData.empty())
     {
-//        qDebug() << "\nsetTaskDataFromJson():" << "taskData.empty()";
+//		qDebug() << "\nsetTaskDataFromJson():" << "taskData.empty()";
 //        printTaskData();
-
         return;
     }
 
-    m_id = taskData.contains("id") ? taskData["id"].toInt() : 0;
-    m_parentTaskId = taskData.contains("parent_task_id") ? taskData["parent_task_id"].toInt() : -1;
-    m_assigneeId = taskData.contains("assignee_id") ? taskData["assignee_id"].toInt() : -1;
+    m_id = taskData.value("id").toInt();
+    m_parentTaskId = taskData.value("parent_task_id").toInt(-1);
+    m_assigneeId = taskData.value("assignee_id").toInt();
 
-    // data to display
-    m_title = taskData.contains("title") ? taskData["title"].toString() : QString();
-    m_description = taskData.contains("description") ? taskData["description"].toString() : QString();
-    QString dueDateStr = taskData.contains("due_date") ? taskData["due_date"].toString() : QString();
+    m_title = taskData.value("title").toString();
+    m_description = taskData.value("description").toString();
+    QString dueDateStr = taskData.value("due_date").toString();
 
     m_dueDate = QDate::fromString(dueDateStr, DATE_FORMAT);
     if (!m_dueDate.isValid())
@@ -32,10 +30,24 @@ void TreeItem::setTaskDataFromJson(const QJsonObject &taskData)
         m_dueDate = QDate();
     }
 
-    QString statusStr = taskData.contains("status") ? taskData["status"].toString() : QString();
+    QString statusStr = taskData.value("status").toString();
     m_status = stringToStatus(statusStr);
+
+    printTaskData();
 }
 
+QJsonObject TreeItem::taskDataToJson() const
+{
+    QJsonObject jsonObj;
+    jsonObj["id"] = m_id;
+    jsonObj["parent_task_id"] = m_parentTaskId != -1 ? m_parentTaskId : QJsonValue::Null;
+    jsonObj["assignee_id"] = m_assigneeId != -1 ? m_assigneeId : QJsonValue::Null;
+    jsonObj["title"] = m_title;
+    jsonObj["description"] = m_description;
+    jsonObj["due_date"] = m_dueDate.toString(DATE_FORMAT);
+    jsonObj["status"] = statusToString(m_status);
+    return jsonObj;
+}
 
 TreeItem *TreeItem::child(int number)
 {

@@ -19,7 +19,6 @@ class TreeItem
 public:
     explicit TreeItem(const QJsonObject &taskData, TreeItem *p_parentTask = nullptr);
 
-    void setTaskDataFromJson(const QJsonObject &taskData);
 
     // for item model
 
@@ -58,6 +57,9 @@ public:
 
     // help functions
 
+    void setTaskDataFromJson(const QJsonObject &taskData);
+    QJsonObject taskDataToJson() const;
+
     TaskStatus stringToStatus(const QString &status) const;
     QString statusToString(TaskStatus status) const;
     void printTaskData();
@@ -65,9 +67,9 @@ public:
 private:
     std::vector<std::unique_ptr<TreeItem>> childTasks;
 
-    int m_id = 0;
-    int m_parentTaskId = 0;
-    int m_assigneeId = 0;
+    int m_id = -1;
+    int m_parentTaskId = -1;
+    int m_assigneeId = -1;
 
     // displayed data		// column
     QString m_title = "";		// 0
