@@ -37,7 +37,7 @@ TreeItemModel::TreeItemModel(QObject *parent)
 
         if (id == -1)
         {
-        qCritical() << Q_FUNC_INFO << "Missing 'id' field in task";
+            qCritical() << Q_FUNC_INFO << "missing 'id' field in task";
         continue;
         }
 
