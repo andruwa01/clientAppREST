@@ -18,8 +18,9 @@ public:
     explicit TreeItemModel(QObject *parent = nullptr);
     ~TreeItemModel() override;
 
-private:
-    std::unique_ptr<TreeItem> p_rootItem;
+public slots:
+    void onTaskCompleted(const QModelIndex &index);
+    void onTaskNotCompleted(const QModelIndex &index);
 
     // QAbstractItemModel interface
 public:
@@ -35,6 +36,7 @@ public:
     bool removeRows(int row, int count, const QModelIndex &parent) override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 private:
+    std::unique_ptr<TreeItem> p_rootItem;
     TreeItem *getItem(const QModelIndex &index) const;
 };
 

@@ -63,6 +63,26 @@ TreeItemModel::TreeItemModel(QObject *parent)
 TreeItemModel::~TreeItemModel()
 {}
 
+void TreeItemModel::onTaskCompleted(const QModelIndex &index)
+{
+    TreeItem *item = getItem(index);
+    if (item)
+    {
+        item->setData(COLUMN_STATUS, "completed");
+        emit dataChanged(index, index, {Qt::DisplayRole});
+    }
+}
+
+void TreeItemModel::onTaskNotCompleted(const QModelIndex &index)
+{
+    TreeItem* item = getItem(index);
+    if (item)
+    {
+        item->setData(COLUMN_STATUS, "new");
+        emit dataChanged(index, index, {Qt::DisplayRole});
+    }
+}
+
 QModelIndex TreeItemModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (parent.isValid() && parent.column() != 0)

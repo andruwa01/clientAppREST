@@ -26,7 +26,34 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->insertTaskAction, &QAction::triggered, this, &MainWindow::insertTask);
     connect(ui->insertSubtaskAction, &QAction::triggered, this, &MainWindow::insertSubtask);
     connect(ui->removeTaskAction, &QAction::triggered, this, &MainWindow::removeTask);
-//    connect(ui->taskCompletedAction, &QAction::triggered, this, &MainWindow::completeTask);
+
+    connect(ui->taskCompletedAction, &QAction::triggered, [this, model]()
+    {
+        QModelIndex index = ui->view->currentIndex();
+        if (index.isValid())
+        {
+            model->onTaskCompleted(index);
+            ui->view->viewport()->update();
+        }
+        else
+        {
+            qCritical() << Q_FUNC_INFO << ": invalid index";
+        }
+    });
+
+    connect(ui->taskIsNotCompletedAction, &QAction::triggered, [this, model]
+    {
+        QModelIndex index = ui->view->currentIndex();
+        if (index.isValid())
+        {
+            model->onTaskNotCompleted(index);
+            ui->view->viewport()->update();
+        }
+        else
+        {
+            qCritical() << Q_FUNC_INFO << ": invalid index";
+        }
+    });
 
     updateActions();
 }
@@ -110,8 +137,9 @@ void MainWindow::updateActions()
     ui->removeTaskAction->setEnabled(hasSelection);
 
     const bool hasCurrent = ui->view->selectionModel()->currentIndex().isValid();
-    ui->insertTaskAction->setEnabled(hasCurrent);
+//    ui->insertTaskAction->setEnabled(hasCurrent);
     ui->taskCompletedAction->setEnabled(hasCurrent);
+    ui->taskIsNotCompletedAction->setEnabled(hasCurrent);
 
     if (hasCurrent)
     {

@@ -77,6 +77,8 @@
     <addaction name="insertSubtaskAction"/>
     <addaction name="separator"/>
     <addaction name="taskCompletedAction"/>
+    <addaction name="separator"/>
+    <addaction name="taskIsNotCompletedAction"/>
    </widget>
    <addaction name="fileMenu"/>
    <addaction name="actionsMenu"/>
@@ -123,6 +125,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="taskIsNotCompletedAction">
+   <property name="text">
+    <string>Задача не выполнена</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+U</string>
    </property>
   </action>
  </widget>
