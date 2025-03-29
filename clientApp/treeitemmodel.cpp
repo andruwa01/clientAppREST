@@ -5,75 +5,59 @@ TreeItemModel::TreeItemModel(QObject *parent)
 {
     p_rootItem = std::make_unique<TreeItem>(QJsonObject());
 
+
     #ifdef TEST_JSON_INPUT
 
-    // load json file (test)
-    // read json from the file
     QFile file(":/testTasks.json");
-    const bool res = file.open(QIODevice::ReadOnly | QIODevice::Text);
-    Q_ASSERT_X(res, Q_FUNC_INFO, "failed to open json file");
-    if (!res) return;
-
-    // read json to model
-    QString jsonLines = QString::fromUtf8(file.readAll());
-
-    qDebug() << "json contents:\n" << jsonLines;
-
-    // form json to valid format
-    if (jsonLines.startsWith("\"") && jsonLines.endsWith("\""))
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        jsonLines = jsonLines.mid(1, jsonLines.length() - 2);  // remove outer ""
-    }
-    jsonLines.replace("\\\"", "\"");  // replace \" with " in str
-    jsonLines = jsonLines.trimmed();  // remove spaces and \n
-
-    qDebug() << "json contents after:\n" << jsonLines;
-
-    // try to parse
-    QByteArray jsonData = jsonLines.toUtf8();
-    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
-
-    if (doc.isNull() || !doc.isArray())
-    {
-        qCritical() << "TreeItemModel():" << "Failed to parse JSON or not an array";
+        qCritical() << Q_FUNC_INFO << "Failed to open json file:" << file.fileName();
         return;
     }
 
-    // set data in tree
+    QByteArray jsonData = file.readAll();
+    file.close();
+
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+    if (doc.isNull() || !doc.isArray())
+    {
+        qCritical() << Q_FUNC_INFO << "Failed to parse JSON or not an array";
+        return;
+    }
+
     QJsonArray taskArray = doc.array();
     QHash<int, TreeItem*> itemMap;
+
     for (const QJsonValue &value : taskArray)
     {
         QJsonObject taskJsonObj = value.toObject();
 
-//        qDebug() << "taskJsonObj:\n" << taskJsonObj;
+        int id = taskJsonObj["id"].toInt(-1);
+        int parentId = taskJsonObj["parent_task_id"].toInt(-1);
 
-        int id = taskJsonObj["id"].toInt();
-
-        TreeItem *p_parentItem = nullptr;
-        if (taskJsonObj["parent_task_id"].isNull())
+        if (id == -1)
         {
-            p_parentItem = p_rootItem.get();
-        }
-        else
-        {
-            int parentId = taskJsonObj["parent_task_id"].toInt();
-            p_parentItem = itemMap.value(parentId, p_rootItem.get());
+        qCritical() << Q_FUNC_INFO << "Missing 'id' field in task";
+        continue;
         }
 
-        p_parentItem->insertChildren(p_parentItem->childCount(), 1);
-        TreeItem *insertedItem = p_parentItem->child(p_parentItem->childCount() - 1);
+        TreeItem *p_parentItem = p_rootItem.get();
+        if (parentId != -1 && itemMap.contains(parentId))
+        {
+        p_parentItem = itemMap.value(parentId);
+        }
 
-        PRINT_DEBUG_JSON(taskJsonObj)
+        int newRow = p_parentItem->childCount();
+        p_parentItem->insertChildren(newRow, 1);
+        TreeItem *insertedItem = p_parentItem->child(newRow);
 
-        // insert json in insertedItem
+        PRINT_DEBUG_JSON(taskJsonObj);
+
         insertedItem->setTaskDataFromJson(taskJsonObj);
-
         itemMap.insert(id, insertedItem);
     }
 
     #endif
-
 }
 
 TreeItemModel::~TreeItemModel()
@@ -162,26 +146,34 @@ QVariant TreeItemModel::data(const QModelIndex &index, int role) const
 
 bool TreeItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (role != Qt::EditRole)
+    if (!index.isValid())
     {
-        qCritical() << "setData():" << "role != Qt::EditRole";
+        qCritical() << "setData():" << "invalid index";
         return false;
     }
 
-    TreeItem *item = getItem(index);
-    bool result = item->setData(index.column(), value);
+    TreeItem *item = nullptr;
+    bool result = false;
 
-    if (result)
+    if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
-        emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
+        item = getItem(index);
+        result = item->setData(index.column(), value);
+        if (result)
+        {
+            emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
+        }
+        else
+        {
+            qCritical() << "setData():" << "! result";
+        }
+
+        return result;
     }
-    else
-    {
-        qCritical() << "item->setData():" << "! result";
-    }
+
+    qCritical() << "setData():" << "no role handler for role" << role;
 
     return result;
-
 }
 
 QVariant TreeItemModel::headerData(int section, Qt::Orientation orientation, int role) const
