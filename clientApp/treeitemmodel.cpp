@@ -11,7 +11,7 @@ TreeItemModel::TreeItemModel(QObject *parent)
     QFile file(":/testTasks.json");
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        qCritical() << Q_FUNC_INFO << "Failed to open json file:" << file.fileName();
+        qCritical() << Q_FUNC_INFO << "failed to open json file:" << file.fileName();
         return;
     }
 
@@ -21,7 +21,7 @@ TreeItemModel::TreeItemModel(QObject *parent)
     QJsonDocument doc = QJsonDocument::fromJson(jsonData);
     if (doc.isNull() || !doc.isArray())
     {
-        qCritical() << Q_FUNC_INFO << "Failed to parse JSON or not an array";
+        qCritical() << Q_FUNC_INFO << "failed to parse JSON or it is not an array";
         return;
     }
 
