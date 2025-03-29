@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     auto *model = new TreeItemModel();
     ui->view->setModel(model);
+    ui->view->setItemDelegateForColumn(COLUMN_DUE_DATE, new DateDelegate(this));
 
     for (int column = 0; column < model->columnCount(); column++)
     {

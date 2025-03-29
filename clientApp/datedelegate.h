@@ -1,7 +1,10 @@
 #ifndef DATEDELEGATE_H
 #define DATEDELEGATE_H
 
+#include "helpdefines.h"
+
 #include <QStyledItemDelegate>
+#include <QDateEdit>
 
 class DateDelegate : public QStyledItemDelegate
 {

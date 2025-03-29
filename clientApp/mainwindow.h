@@ -3,6 +3,7 @@
 
 //#include "treemodel.h"
 #include "treeitemmodel.h"
+#include "datedelegate.h"
 
 #include <QMainWindow>
 #include <QFile>
