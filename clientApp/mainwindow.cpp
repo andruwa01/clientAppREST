@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->treeView->setModel(model);
     ui->treeView->setItemDelegateForColumn(TreeItem::Column_DueDate, new DateDelegate(this));
     
-    // tree view
+    // tree view settings
     ui->treeView->header()->setStretchLastSection(false);
     ui->treeView->header()->setSectionResizeMode(TreeItem::Column_Title, QHeaderView::Stretch);
     ui->treeView->header()->setSectionResizeMode(TreeItem::Column_Description, QHeaderView::Stretch);
@@ -29,40 +29,40 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->treeView->header()->resizeSection(TreeItem::Column_DueDate, 100);
     ui->treeView->header()->resizeSection(TreeItem::Column_Status, 80);
-    ui->treeView->header()->resizeSection(TreeItem::Column_Employee, 200); // Увеличил начальную ширину
+    ui->treeView->header()->resizeSection(TreeItem::Column_Employee, 200); // increase initial width
     
     ui->treeView->setAlternatingRowColors(true);
     ui->treeView->expandAll();
 
-    // table view
+    // table view settings
     ui->tableView->setModel(employeeModel);
     ui->tableView->horizontalHeader()->setStretchLastSection(false);
     ui->tableView->horizontalHeader()->setSectionResizeMode(EmployeeModel::Column_Id, QHeaderView::Fixed);
     ui->tableView->horizontalHeader()->setSectionResizeMode(EmployeeModel::Column_FullName, QHeaderView::Stretch);
     ui->tableView->horizontalHeader()->setSectionResizeMode(EmployeeModel::Column_Position, QHeaderView::Stretch);
     
-    // Установка фиксированных размеров для колонок таблицы
+    // set fixed column sizes for table
     ui->tableView->horizontalHeader()->resizeSection(EmployeeModel::Column_Id, 50);
     
-    // Установка минимальных размеров колонок
+    // set minimum column sizes
     ui->tableView->horizontalHeader()->setMinimumSectionSize(50);
     ui->treeView->header()->setMinimumSectionSize(50);
     
-    // Установка минимальной высоты строк
+    // set minimum row heights
     ui->tableView->verticalHeader()->setMinimumSectionSize(25);
     ui->treeView->header()->setMinimumSectionSize(25);
     
-    // Минимальные размеры для view
+    // set minimum view sizes
     ui->treeView->setMinimumHeight(300);
     ui->tableView->setMinimumHeight(200);
 
-    // Общие настройки для TableView
+    // general TableView settings
     ui->tableView->setAlternatingRowColors(true);
     ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->tableView->verticalHeader()->hide();
     
-    // Финальная подгонка размеров
+    // final size adjustments
     for (int i = 0; i < ui->treeView->model()->columnCount(); ++i) {
         ui->treeView->resizeColumnToContents(i);
     }
@@ -140,7 +140,7 @@ void MainWindow::insertSubtask()
     QModelIndex index = ui->treeView->selectionModel()->currentIndex();
     QAbstractItemModel *model = ui->treeView->model();
 
-    // to correct insert row when we chose element with index.column() != 0
+    // to correct insert row when we choose element with index.column() != 0
     if (index.column() != 0)
     {
         index = index.siblingAtColumn(0);
