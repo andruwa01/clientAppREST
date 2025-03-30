@@ -18,25 +18,33 @@ EmployeeModel::EmployeeModel(QObject *parent)
 int EmployeeModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
+    {
         return 0;
+    }
     return m_employees.size();
 }
 
 int EmployeeModel::columnCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
+    {
         return 0;
+    }
     return Column_Position + 1; // last enum + 1
 }
 
 QVariant EmployeeModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
+    {
         return QVariant();
+    }
 
-    if (role == Qt::DisplayRole || role == Qt::EditRole) {
+    if (role == Qt::DisplayRole || role == Qt::EditRole) 
+    {
         const Employee &employee = m_employees.at(index.row());
-        switch (index.column()) {
+        switch (index.column()) 
+        {
             case Column_Id:
                 return employee.id;
             case Column_FullName:
@@ -52,8 +60,10 @@ QVariant EmployeeModel::data(const QModelIndex &index, int role) const
 
 QVariant EmployeeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
-        switch (section) {
+    if (role == Qt::DisplayRole && orientation == Qt::Horizontal) 
+    {
+        switch (section) 
+        {
             case Column_Id:
                 return tr("ID");
             case Column_FullName:
@@ -70,11 +80,15 @@ QVariant EmployeeModel::headerData(int section, Qt::Orientation orientation, int
 Qt::ItemFlags EmployeeModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
+    {
         return Qt::NoItemFlags;
+    }
 
     // Make id column non-editable
     if (index.column() == Column_Id)
+    {
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    }
 
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
 }
@@ -82,10 +96,13 @@ Qt::ItemFlags EmployeeModel::flags(const QModelIndex &index) const
 bool EmployeeModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (!index.isValid() || role != Qt::EditRole)
+    {
         return false;
+    }
 
     Employee &employee = m_employees[index.row()];
-    switch (index.column()) {
+    switch (index.column()) 
+    {
         case Column_Id:
             employee.id = value.toInt();
             break;
@@ -138,22 +155,23 @@ bool EmployeeModel::isIdUnique(int id) const
 
 int EmployeeModel::generateNextId()
 {
-    // Find maximum existing id
     int maxId = 0;
-    for (const auto &emp : m_employees) {
-        if (emp.id > maxId) {
+    for (const auto &emp : m_employees)
+    {
+        if (emp.id > maxId)
+        {
             maxId = emp.id;
         }
     }
-    
-    // Return next available id
     return maxId + 1;
 }
 
 void EmployeeModel::removeEmployee(int row)
 {
     if (row < 0 || row >= m_employees.size())
+    {
         return;
+    }
 
     int employeeId = m_employees[row].id;
     beginRemoveRows(QModelIndex(), row, row);
@@ -165,9 +183,12 @@ void EmployeeModel::removeEmployee(int row)
 
 QString EmployeeModel::getEmployeeNameById(int id) const
 {
-    for (const Employee &emp : m_employees) {
+    for (const Employee &emp : m_employees) 
+    {
         if (emp.id == id)
+        {
             return emp.fullName;
+        }
     }
     return QString();
 }
@@ -175,6 +196,8 @@ QString EmployeeModel::getEmployeeNameById(int id) const
 int EmployeeModel::getEmployeeIdByRow(int row) const
 {
     if (row >= 0 && row < m_employees.size())
+    {
         return m_employees[row].id;
+    }
     return -1;
 }

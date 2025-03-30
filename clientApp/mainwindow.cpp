@@ -63,11 +63,13 @@ MainWindow::MainWindow(QWidget *parent)
     ui->tableView->verticalHeader()->hide();
     
     // final size adjustments
-    for (int i = 0; i < ui->treeView->model()->columnCount(); ++i) {
+    for (int i = 0; i < ui->treeView->model()->columnCount(); i++)
+    {
         ui->treeView->resizeColumnToContents(i);
     }
     
-    for (int i = 0; i < ui->tableView->model()->columnCount(); ++i) {
+    for (int i = 0; i < ui->tableView->model()->columnCount(); i++)
+    {
         ui->tableView->resizeColumnToContents(i);
     }
 
@@ -229,11 +231,15 @@ void MainWindow::removeEmployee()
 {
     const QModelIndex index = ui->tableView->currentIndex();
     if (!index.isValid())
+    {
         return;
+    }
         
     auto *employeeModel = qobject_cast<EmployeeModel*>(ui->tableView->model());
     if (!employeeModel)
+    {
         return;
+    }
 
     employeeModel->removeEmployee(index.row());
     updateActions();

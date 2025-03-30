@@ -98,7 +98,8 @@ void TreeItemModel::onEmployeeRemoved(int employeeId)
         }
         
         // Process children
-        for (int i = 0; i < item->childCount(); ++i) {
+        for (int i = 0; i < item->childCount(); i++)
+        {
             updateItems(item->child(i));
         }
     };
@@ -118,7 +119,8 @@ void TreeItemModel::onEmployeeNameChanged(int employeeId)
         }
         
         // Process children
-        for (int i = 0; i < item->childCount(); ++i) {
+        for (int i = 0; i < item->childCount(); i++)
+        {
             updateItems(item->child(i));
         }
     };
