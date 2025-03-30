@@ -3,6 +3,7 @@
 
 #include "treeitem.h"
 #include "helpdefines.h"
+#include "employeemodel.h"
 
 #include <QAbstractItemModel>
 #include <QFile>
@@ -15,7 +16,7 @@ class TreeItemModel : public QAbstractItemModel
 public:
     Q_DISABLE_COPY_MOVE(TreeItemModel)
 
-    explicit TreeItemModel(QObject *parent = nullptr);
+    explicit TreeItemModel(EmployeeModel *employeeModel, QObject *parent = nullptr);
     ~TreeItemModel() override;
 
 public slots:
@@ -38,6 +39,7 @@ public:
 private:
     std::unique_ptr<TreeItem> p_rootItem;
     TreeItem *getItem(const QModelIndex &index) const;
+    EmployeeModel *m_employeeModel;
 };
 
 #endif // TREEITEMMODEL_H

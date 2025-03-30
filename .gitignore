@@ -2,3 +2,4 @@
 clientApp.pro.user*
 clientApp.pro.user.*
 !clientApp.pro
+*.sql

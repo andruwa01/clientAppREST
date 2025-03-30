@@ -7,9 +7,10 @@
 #define COLUMN_DESCRIPTION 1
 #define COLUMN_DUE_DATE    2
 #define COLUMN_STATUS 	   3
+#define COLUMN_EMPLOYEE	   4
 
 #define DATE_FORMAT "yyyy-MM-dd"
-#define DISPLAY_COLUMNS 4
+#define DISPLAY_COLUMNS 5
 
 // Enable / disable dfines
 

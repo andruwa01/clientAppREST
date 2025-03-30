@@ -1,7 +1,9 @@
 #include "treeitemmodel.h"
 
-TreeItemModel::TreeItemModel(QObject *parent)
-    : QAbstractItemModel{parent}
+// update new column ?
+
+TreeItemModel::TreeItemModel(EmployeeModel *employeeModel, QObject *parent)
+    : QAbstractItemModel{parent}, m_employeeModel(employeeModel)
 {
     p_rootItem = std::make_unique<TreeItem>(QJsonObject());
 

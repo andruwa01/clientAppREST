@@ -10,19 +10,21 @@ CONFIG += c++11
 
 SOURCES += \
     datedelegate.cpp \
+    employeemodel.cpp \
+    employeedelegate.cpp \
     main.cpp \
     mainwindow.cpp \
     treeitem.cpp \
-    treeitemmodel.cpp \
-#    treemodel.cpp
+    treeitemmodel.cpp
 
 HEADERS += \
     datedelegate.h \
+    employeemodel.h \
+    employeedelegate.h \
     helpdefines.h \
     mainwindow.h \
     treeitem.h \
-    treeitemmodel.h \
-#    treemodel.h
+    treeitemmodel.h
 
 FORMS += \
     mainwindow.ui

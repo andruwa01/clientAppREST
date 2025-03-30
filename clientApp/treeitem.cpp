@@ -98,6 +98,7 @@ QVariant TreeItem::data(int column) const
         case COLUMN_DESCRIPTION: return m_description;
         case COLUMN_DUE_DATE:    return m_dueDate.toString(DATE_FORMAT);
         case COLUMN_STATUS: 	 return statusToString(m_status);
+        case COLUMN_EMPLOYEE:    return m_assigneeId;
         default: qWarning() << Q_FUNC_INFO << ": unknown column:" << column;
         return QVariant();
     }
@@ -173,6 +174,9 @@ bool TreeItem::setData(int column, const QVariant &value)
         }
         break;
     }
+    case COLUMN_EMPLOYEE:
+        m_assigneeId = value.toInt();
+        break;
     default:
         return false;
     }
