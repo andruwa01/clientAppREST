@@ -1,0 +1,372 @@
+openapi: 3.0.0
+info:
+  title: Task Tracker API
+  version: "1.0.0"
+servers:
+  - url: http://localhost:8080/api
+paths:
+  /employees:
+    get:
+      summary: Получение списка всех сотрудников
+      description: |
+        **SQL Query:**
+        ```
+        SELECT * FROM employees;
+        ```
+      responses:
+        "200":
+          description: Список сотрудников успешно получен
+          content:
+            application/json:
+              example:
+                - id: 1
+                  full_name: "John Doe"
+                  position: "Developer"
+                - id: 2
+                  full_name: "Jane Smith"
+                  position: "Manager"
+    post:
+      summary: Создание нового сотрудника
+      description: |
+        **SQL Query:**
+        ```
+        INSERT INTO employees (full_name, position)
+        VALUES ($1, $2)
+        RETURNING *;
+        ```
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                position:
+                  type: string
+            example:
+              full_name: "Alice Johnson"
+              position: "Designer"
+      responses:
+        "201":
+          description: Сотрудник успешно создан
+          content:
+            application/json:
+              example:
+                id: 3
+                full_name: "Alice Johnson"
+                position: "Designer"
+  /employees/{id}:
+    get:
+      summary: Получение сотрудника по ID
+      description: |
+        **SQL Query:**
+        ```
+        SELECT * FROM employees WHERE id = $1;
+        ```
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Идентификатор сотрудника
+      responses:
+        "200":
+          description: Сотрудник найден
+          content:
+            application/json:
+              example:
+                id: 1
+                full_name: "John Doe"
+                position: "Developer"
+        "404":
+          description: Сотрудник не найден
+          content:
+            application/json:
+              example:
+                error: "Employee not found"
+    put:
+      summary: Обновление сотрудника
+      description: |
+        **SQL Query:**
+        ```
+        UPDATE employees
+        SET full_name = $1, position = $2
+        WHERE id = $3
+        RETURNING *;
+        ```
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Идентификатор сотрудника
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                position:
+                  type: string
+            example:
+              full_name: "John Doe Updated"
+              position: "Senior Developer"
+      responses:
+        "200":
+          description: Сотрудник успешно обновлен
+          content:
+            application/json:
+              example:
+                id: 1
+                full_name: "John Doe Updated"
+                position: "Senior Developer"
+        "404":
+          description: Сотрудник не найден
+          content:
+            application/json:
+              example:
+                error: "Employee not found"
+    delete:
+      summary: Удаление сотрудника
+      description: |
+        **SQL Query:**
+        ```
+        DELETE FROM employees
+        WHERE id = $1
+        RETURNING *;
+        ```
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Идентификатор сотрудника
+      responses:
+        "200":
+          description: Сотрудник успешно удален
+          content:
+            application/json:
+              example:
+                id: 1
+                full_name: "John Doe"
+                position: "Developer"
+        "404":
+          description: Сотрудник не найден
+          content:
+            application/json:
+              example:
+                error: "Employee not found"
+  /tasks:
+    get:
+      summary: Получение списка задач
+      description: |
+        **SQL Query:**
+        ```
+        SELECT * FROM tasks;
+        ```
+      responses:
+        "200":
+          description: Список задач успешно получен
+          content:
+            application/json:
+              example:
+                - id: 1
+                  title: "Fix Bug #123"
+                  description: "Fix the login issue"
+                  parent_task_id: null
+                  assignee_id: 2
+                  due_date: "2025-04-01"
+                  status: "new"
+    post:
+      summary: Создание новой задачи
+      description: |
+        **SQL Query:**
+        ```
+        INSERT INTO tasks (title, description, parent_task_id, assignee_id, due_date, status)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING *;
+        ```
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                parent_task_id:
+                  type: integer
+                  nullable: true
+                assignee_id:
+                  type: integer
+                  nullable: true
+                due_date:
+                  type: string
+                  format: date
+                status:
+                  type: string
+            example:
+              title: "Implement Feature X"
+              description: "Develop a new feature"
+              parent_task_id: null
+              assignee_id: 1
+              due_date: "2025-05-01"
+              status: "new"
+      responses:
+        "201":
+          description: Задача успешно создана
+          content:
+            application/json:
+              example:
+                id: 2
+                title: "Implement Feature X"
+                description: "Develop a new feature"
+                parent_task_id: null
+                assignee_id: 1
+                due_date: "2025-05-01"
+                status: "new"
+  /tasks/{id}:
+    get:
+      summary: Получение задачи по ID
+      description: |
+        **SQL Query:**
+        ```
+        SELECT * FROM tasks WHERE id = $1;
+        ```
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Идентификатор задачи
+      responses:
+        "200":
+          description: Задача найдена
+          content:
+            application/json:
+              example:
+                id: 1
+                title: "Fix Bug #123"
+                description: "Fix the login issue"
+                parent_task_id: null
+                assignee_id: 2
+                due_date: "2025-04-01"
+                status: "new"
+        "404":
+          description: Задача не найдена
+          content:
+            application/json:
+              example:
+                error: "Task not found"
+    put:
+      summary: Обновление задачи
+      description: |
+        **SQL Query:**
+        ```
+        UPDATE tasks
+        SET title = $1, description = $2, parent_task_id = $3, assignee_id = $4, due_date = $5, status = $6
+        WHERE id = $7
+        RETURNING *;
+        ```
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Идентификатор задачи
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                parent_task_id:
+                  type: integer
+                  nullable: true
+                assignee_id:
+                  type: integer
+                  nullable: true
+                due_date:
+                  type: string
+                  format: date
+                status:
+                  type: string
+            example:
+              title: "Implement Feature X (Updated)"
+              description: "Refactored feature implementation"
+              parent_task_id: null
+              assignee_id: 1
+              due_date: "2025-05-01"
+              status: "in_progress"
+      responses:
+        "200":
+          description: Задача успешно обновлена
+          content:
+            application/json:
+              example:
+                id: 2
+                title: "Implement Feature X (Updated)"
+                description: "Refactored feature implementation"
+                parent_task_id: null
+                assignee_id: 1
+                due_date: "2025-05-01"
+                status: "in_progress"
+        "404":
+          description: Задача не найдена
+          content:
+            application/json:
+              example:
+                error: "Task not found"
+    delete:
+      summary: Удаление задачи (и всех дочерних задач)
+      description: |
+        **SQL Query:**
+        ```
+        DELETE FROM tasks
+        WHERE id = $1
+        RETURNING *;
+        ```
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Идентификатор задачи
+      responses:
+        "200":
+          description: Задача успешно удалена
+          content:
+            application/json:
+              example:
+                id: 2
+                title: "Implement Feature X"
+                description: "Develop a new feature"
+                parent_task_id: null
+                assignee_id: 1
+                due_date: "2025-05-01"
+                status: "new"
+        "404":
+          description: Задача не найдена
+          content:
+            application/json:
+              example:
+                error: "Task not found"
