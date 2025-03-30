@@ -27,6 +27,8 @@ private slots:
     void insertTask();
     void insertSubtask();
     void removeTask();
+    void insertEmployee();
+    void removeEmployee();
 
 private:
     Ui::MainWindow *ui;

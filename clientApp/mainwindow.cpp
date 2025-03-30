@@ -73,10 +73,15 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->exitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
     connect(ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::updateActions);
+    connect(ui->tableView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::updateActions);
 
     connect(ui->insertTaskAction, &QAction::triggered, this, &MainWindow::insertTask);
     connect(ui->insertSubtaskAction, &QAction::triggered, this, &MainWindow::insertSubtask);
     connect(ui->removeTaskAction, &QAction::triggered, this, &MainWindow::removeTask);
+    
+    // Add new employee action connections
+    connect(ui->actionAddEmployee, &QAction::triggered, this, &MainWindow::insertEmployee);
+    connect(ui->actionRemoveEmployee, &QAction::triggered, this, &MainWindow::removeEmployee);
 
     connect(ui->taskCompletedAction, &QAction::triggered, [this, model]()
     {
@@ -181,21 +186,57 @@ void MainWindow::removeTask()
     }
 }
 
+void MainWindow::insertEmployee()
+{
+    auto *employeeModel = qobject_cast<EmployeeModel*>(ui->tableView->model());
+    if (!employeeModel)
+        return;
+
+    Employee newEmployee;
+    newEmployee.id = 0;  // Let model/database assign proper ID
+    newEmployee.fullName = tr("New Employee");
+    newEmployee.position = tr("Position");
+    
+    employeeModel->addEmployee(newEmployee);
+    
+    // Select the newly added employee
+    const QModelIndex newIndex = employeeModel->index(employeeModel->rowCount() - 1, 0);
+    ui->tableView->setCurrentIndex(newIndex);
+    ui->tableView->edit(newIndex);
+}
+
+void MainWindow::removeEmployee()
+{
+    const QModelIndex index = ui->tableView->currentIndex();
+    if (!index.isValid())
+        return;
+        
+    auto *employeeModel = qobject_cast<EmployeeModel*>(ui->tableView->model());
+    if (!employeeModel)
+        return;
+
+    employeeModel->removeEmployee(index.row());
+    updateActions();
+}
+
 void MainWindow::updateActions()
 {
-    // check if we have task to select
-    const bool hasSelection = !ui->treeView->selectionModel()->selection().isEmpty();
-    ui->removeTaskAction->setEnabled(hasSelection);
+    // Existing task-related actions
+    const bool hasTaskSelection = !ui->treeView->selectionModel()->selection().isEmpty();
+    ui->removeTaskAction->setEnabled(hasTaskSelection);
 
-    const bool hasCurrent = ui->treeView->selectionModel()->currentIndex().isValid();
-//    ui->insertTaskAction->setEnabled(hasCurrent);
-    ui->taskCompletedAction->setEnabled(hasCurrent);
-    ui->taskIsNotCompletedAction->setEnabled(hasCurrent);
+    const bool hasCurrentTask = ui->treeView->selectionModel()->currentIndex().isValid();
+    ui->taskCompletedAction->setEnabled(hasCurrentTask);
+    ui->taskIsNotCompletedAction->setEnabled(hasCurrentTask);
 
-    if (hasCurrent)
+    // New employee-related actions
+    const bool hasEmployeeSelection = ui->tableView->selectionModel() && 
+                                    !ui->tableView->selectionModel()->selection().isEmpty();
+    ui->actionRemoveEmployee->setEnabled(hasEmployeeSelection);
+
+    // Position display in status bar
+    if (hasCurrentTask)
     {
-        ui->treeView->closePersistentEditor(ui->treeView->selectionModel()->currentIndex());
-
         const int row = ui->treeView->selectionModel()->currentIndex().row();
         const int column = ui->treeView->selectionModel()->currentIndex().column();
 

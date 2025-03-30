@@ -57,6 +57,9 @@
     </item>
     <item>
      <widget class="QTableView" name="tableView">
+      <property name="selectionMode">
+       <enum>QAbstractItemView::SingleSelection</enum>
+      </property>
       <property name="selectionBehavior">
        <enum>QAbstractItemView::SelectItems</enum>
       </property>
@@ -75,7 +78,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>567</width>
+     <width>800</width>
      <height>22</height>
     </rect>
    </property>
@@ -85,7 +88,7 @@
     </property>
     <addaction name="exitAction"/>
    </widget>
-   <widget class="QMenu" name="actionsMenu">
+   <widget class="QMenu" name="actionsTasks">
     <property name="title">
      <string>Задачи</string>
     </property>
@@ -99,8 +102,17 @@
     <addaction name="separator"/>
     <addaction name="taskIsNotCompletedAction"/>
    </widget>
+   <widget class="QMenu" name="actionsEmployees">
+    <property name="title">
+     <string>Сотрудники</string>
+    </property>
+    <addaction name="actionAddEmployee"/>
+    <addaction name="separator"/>
+    <addaction name="actionRemoveEmployee"/>
+   </widget>
    <addaction name="fileMenu"/>
-   <addaction name="actionsMenu"/>
+   <addaction name="actionsTasks"/>
+   <addaction name="actionsEmployees"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="exitAction">
@@ -152,6 +164,16 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+U</string>
+   </property>
+  </action>
+  <action name="actionAddEmployee">
+   <property name="text">
+    <string>Добавить сотрудника</string>
+   </property>
+  </action>
+  <action name="actionRemoveEmployee">
+   <property name="text">
+    <string>Удалить сотрудника</string>
    </property>
   </action>
  </widget>
