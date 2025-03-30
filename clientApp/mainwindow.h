@@ -3,6 +3,7 @@
 
 #include "treeitemmodel.h"
 #include "datedelegate.h"
+#include "apiclient.h"
 
 #include <QMainWindow>
 #include <QFile>
@@ -21,6 +22,8 @@ public:
 
 public slots:
     void updateActions();
+    void refreshData();
+    void handleApiError(const QString& error);
 
 private slots:
     void insertTask();
@@ -31,5 +34,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    ApiClient* apiClient;
+    void setupApiConnections();
 };
 #endif // MAINWINDOW_H

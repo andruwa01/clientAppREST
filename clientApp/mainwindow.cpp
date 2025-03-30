@@ -5,6 +5,7 @@
 
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -134,6 +135,7 @@ MainWindow::MainWindow(QWidget *parent)
         }
     });
 
+    setupApiConnections();
     updateActions();
 }
 
@@ -278,4 +280,15 @@ void MainWindow::updateActions()
             statusBar()->showMessage(tr("Position: (%1,%2) in top level").arg(row).arg(column));
         }
     }
+}
+
+void MainWindow::handleApiError(const QString& error)
+{
+    QMessageBox::critical(this, tr("Error"), error);
+}
+
+void MainWindow::setupApiConnections()
+{
+    connect(apiClient, &ApiClient::errorOccurred, this, &MainWindow::handleApiError);
+    // other api connections
 }
