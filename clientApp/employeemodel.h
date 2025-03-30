@@ -7,7 +7,7 @@
 class Employee
 {
 public:
-    int id = 0; // Changed from -1 to 0
+    int id = 0;
     QString fullName;
     QString position;
 };
@@ -43,7 +43,7 @@ public:
 
 signals:
     void employeeRemoved(int employeeId);
-    void employeeNameChanged(int employeeId);  // Добавляем новый сигнал
+    void employeeNameChanged(int employeeId);
 
 private:
     QVector<Employee> m_employees;
