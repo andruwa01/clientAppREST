@@ -47,7 +47,7 @@ void DateDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, cons
     }
 }
 
-void DateDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void DateDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &) const
 {
     editor->setGeometry(option.rect);
 }
