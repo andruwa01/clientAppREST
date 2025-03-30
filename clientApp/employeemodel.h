@@ -38,10 +38,10 @@ private:
 
     enum EmployeeColumns
     {
-        Column_Id = 0,
+        Column_Id 		= 0,
         Column_FullName = 1,
         Column_Position = 2,
-        Column_Count = 3
+        Column_Count 	= 3
     };
 };
 

@@ -1,4 +1,5 @@
 #include "datedelegate.h"
+#include "treeitem.h"
 
 DateDelegate::DateDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
@@ -7,7 +8,7 @@ DateDelegate::DateDelegate(QObject *parent)
 
 QWidget *DateDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &, const QModelIndex &index) const
 {
-    if (index.column() != COLUMN_DUE_DATE)
+    if (index.column() != TreeItem::Column_DueDate)
     {
         qCritical() << Q_FUNC_INFO << ": index is not DUE_DATE index";
         return nullptr;

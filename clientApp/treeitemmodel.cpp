@@ -1,6 +1,6 @@
 #include "treeitemmodel.h"
 
-// update new column ?
+// update new column
 
 TreeItemModel::TreeItemModel(EmployeeModel *employeeModel, QObject *parent)
     : QAbstractItemModel{parent}, m_employeeModel(employeeModel)
@@ -70,7 +70,7 @@ void TreeItemModel::onTaskCompleted(const QModelIndex &index)
     TreeItem *item = getItem(index);
     if (item)
     {
-        item->setData(COLUMN_STATUS, "completed");
+        item->setData(TreeItem::Column_Status, "completed");
         emit dataChanged(index, index, {Qt::DisplayRole});
     }
 }
@@ -80,7 +80,7 @@ void TreeItemModel::onTaskNotCompleted(const QModelIndex &index)
     TreeItem* item = getItem(index);
     if (item)
     {
-        item->setData(COLUMN_STATUS, "new");
+        item->setData(TreeItem::Column_Status, "new");
         emit dataChanged(index, index, {Qt::DisplayRole});
     }
 }
@@ -203,47 +203,17 @@ QVariant TreeItemModel::headerData(int section, Qt::Orientation orientation, int
     {
         switch(section)
         {
-            case COLUMN_TITLE: 		 return "Title";
-            case COLUMN_DESCRIPTION: return "Description";
-            case COLUMN_DUE_DATE: 	 return "Due date";
-            case COLUMN_STATUS: 	 return "Status";
+            case TreeItem::Column_Title:       return "Title";
+            case TreeItem::Column_Description: return "Description";
+            case TreeItem::Column_DueDate:     return "Due date"; 
+            case TreeItem::Column_Status:      return "Status";
+            case TreeItem::Column_Employee:    return "Employee";
             default: return QVariant();
         }
     }
 
     return QVariant();
 }
-
-//bool TreeItemModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role)
-//{
-//    if (orientation == Qt::Horizontal && role == Qt::EditRole)
-//    {
-//        switch (section)
-//        {
-//            case 0
-//                m_headerData[0] = value.toString();
-//                break;
-//            case 1:
-//                m_headerData[1] = value.toString();
-//                break;
-//            case 2:
-//                m_headerData[2] = value.toString();
-//                break;
-//            case 3:
-//                m_headerData[3] = value.toString();
-//                break;
-//            default:
-//                return false;
-//        }
-
-//        emit headerDataChanged(orientation, section, section);
-
-//        return true;
-//    }
-
-//    return false;
-//}
-
 
 bool TreeItemModel::insertRows(int row, int count, const QModelIndex &parent)
 {
@@ -287,7 +257,7 @@ Qt::ItemFlags TreeItemModel::flags(const QModelIndex &index) const
 
     Qt::ItemFlags defaultFlags = QAbstractItemModel::flags(index);
 
-    if (index.column() == COLUMN_STATUS)
+    if (index.column() == TreeItem::Column_Status)
     {
         return defaultFlags;
     }

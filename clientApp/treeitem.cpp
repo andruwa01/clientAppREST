@@ -66,7 +66,7 @@ int TreeItem::childCount() const
 
 int TreeItem::columnCount() const
 {
-    return DISPLAY_COLUMNS;
+    return Column_Employee + 1; // last enum + 1
 }
 
 int TreeItem::rowInParentChilds() const
@@ -94,11 +94,11 @@ QVariant TreeItem::data(int column) const
 {
     switch(column)
     {
-        case COLUMN_TITLE: 		 return m_title;
-        case COLUMN_DESCRIPTION: return m_description;
-        case COLUMN_DUE_DATE:    return m_dueDate.toString(DATE_FORMAT);
-        case COLUMN_STATUS: 	 return statusToString(m_status);
-        case COLUMN_EMPLOYEE:    return m_assigneeId;
+        case Column_Title:        return m_title;
+        case Column_Description:  return m_description;
+        case Column_DueDate:      return m_dueDate.toString(DATE_FORMAT);
+        case Column_Status:       return statusToString(m_status);
+        case Column_Employee:     return m_assigneeId;
         default: qWarning() << Q_FUNC_INFO << ": unknown column:" << column;
         return QVariant();
     }
@@ -143,13 +143,13 @@ bool TreeItem::setData(int column, const QVariant &value)
 {
     switch (column)
     {
-    case COLUMN_TITLE:
+    case Column_Title:
         m_title = value.toString();
         break;
-    case COLUMN_DESCRIPTION:
+    case Column_Description:
         m_description = value.toString();
         break;
-    case COLUMN_DUE_DATE:
+    case Column_DueDate:
     {
         QString dateStr = value.toString();
         QDate date = QDate::fromString(dateStr, DATE_FORMAT);
@@ -163,7 +163,7 @@ bool TreeItem::setData(int column, const QVariant &value)
         }
         break;
     }
-    case COLUMN_STATUS:
+    case Column_Status:
     {
         QString statusStr = value.toString();
         m_status = stringToStatus(statusStr);
@@ -174,7 +174,7 @@ bool TreeItem::setData(int column, const QVariant &value)
         }
         break;
     }
-    case COLUMN_EMPLOYEE:
+    case Column_Employee:
         m_assigneeId = value.toInt();
         break;
     default:
@@ -185,13 +185,13 @@ bool TreeItem::setData(int column, const QVariant &value)
 }
 
 
-TaskStatus TreeItem::stringToStatus(const QString &status) const
+TreeItem::TaskStatus TreeItem::stringToStatus(const QString &status) const
 {
-    if (status == "new") 		 return TaskStatus::New;
-    if (status == "in_progress") return TaskStatus::InProgress;
-    if (status == "completed")   return TaskStatus::Completed;
+    if (status == "new")          return TaskStatus::New;
+    if (status == "in_progress")  return TaskStatus::InProgress;
+    if (status == "completed")    return TaskStatus::Completed;
 
-    qDebug() << "stringToStatus(): unkonown format of status: " << status;
+    qDebug() << "stringToStatus(): unknown format of status: " << status;
 
     return TaskStatus::New;
 }
@@ -200,10 +200,10 @@ QString TreeItem::statusToString(TaskStatus status) const
 {
     switch (status)
     {
-        case TaskStatus::New: 		 return "new";
+        case TaskStatus::New:        return "new";
         case TaskStatus::InProgress: return "in_progress";
         case TaskStatus::Completed:  return "completed";
-        default: 					 return "unknown";
+        default:                     return "unknown";
     }
 }
 
@@ -270,7 +270,7 @@ void TreeItem::setDueDate(const QDate &newDueDate)
     m_dueDate = newDueDate;
 }
 
-TaskStatus TreeItem::status() const
+TreeItem::TaskStatus TreeItem::status() const
 {
     return m_status;
 }

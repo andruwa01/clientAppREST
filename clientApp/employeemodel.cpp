@@ -24,7 +24,7 @@ int EmployeeModel::columnCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
-    return Column_Count;
+    return Column_Position + 1; // last enum + 1
 }
 
 QVariant EmployeeModel::data(const QModelIndex &index, int role) const

@@ -7,18 +7,26 @@
 #include <QDate>
 #include <QJsonObject>
 
-enum class TaskStatus
-{
-    New,
-    InProgress,
-    Completed
-};
-
 class TreeItem
 {
 public:
-    explicit TreeItem(const QJsonObject &taskData, TreeItem *p_parentTask = nullptr);
+    enum class TaskStatus
+    {
+        New,
+        InProgress,
+        Completed
+    };
 
+    enum TreeItemColumns
+    {
+        Column_Title        = 0,
+        Column_Description  = 1, 
+        Column_DueDate      = 2,
+        Column_Status       = 3,
+        Column_Employee     = 4
+    };
+
+    explicit TreeItem(const QJsonObject &taskData, TreeItem *p_parentTask = nullptr);
 
     // for item model
 
@@ -76,11 +84,10 @@ private: // data
     int m_parentTaskId = -1;
     int m_assigneeId = -1;
 
-    // displayed data						// column
-    QString m_title = "";					// 0
-    QString m_description = "";  			// 1
-    QDate m_dueDate = QDate();				// 2
-    TaskStatus m_status = TaskStatus::New;	// 3
+    QString m_title = "";
+    QString m_description = "";
+    QDate m_dueDate = QDate();
+    TaskStatus m_status = TaskStatus::New;
 };
 
 #endif // TREEITEM_H

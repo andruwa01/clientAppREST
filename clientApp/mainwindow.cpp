@@ -17,8 +17,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     auto *model = new TreeItemModel(employeeModel, this);
     ui->view->setModel(model);
-    ui->view->setItemDelegateForColumn(COLUMN_DUE_DATE, new DateDelegate(this));
-    ui->view->setItemDelegateForColumn(COLUMN_EMPLOYEE, new EmployeeDelegate(employeeModel, this));
+    ui->view->setItemDelegateForColumn(TreeItem::Column_DueDate, new DateDelegate(this));
+    ui->view->setItemDelegateForColumn(TreeItem::Column_Employee, new EmployeeDelegate(employeeModel, this));
 
     for (int column = 0; column < model->columnCount(); column++)
     {
