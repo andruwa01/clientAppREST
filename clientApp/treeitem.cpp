@@ -10,14 +10,12 @@ void TreeItem::setTaskDataFromJson(const QJsonObject &taskData)
 {
     if (taskData.empty())
     {
-//		qDebug() << "\nsetTaskDataFromJson():" << "taskData.empty()";
-//        printTaskData();
         return;
     }
 
     m_id = taskData.value("id").toInt();
-    m_parentTaskId = taskData.value("parent_task_id").toInt(0); // Changed from -1 to 0
-    m_assigneeId = taskData.value("assignee_id").toInt(0); // Changed from -1 to 0
+    m_parentTaskId = taskData.value("parent_task_id").toInt(0);
+    m_assigneeId = taskData.value("assignee_id").toInt(0);
 
     m_title = taskData.value("title").toString();
     m_description = taskData.value("description").toString();
@@ -40,8 +38,8 @@ QJsonObject TreeItem::taskDataToJson() const
 {
     QJsonObject jsonObj;
     jsonObj["id"] = m_id;
-    jsonObj["parent_task_id"] = (m_parentTaskId != 0) ? m_parentTaskId : QJsonValue::Null; // Changed from -1 to 0
-    jsonObj["assignee_id"] = (m_assigneeId != 0) ? m_assigneeId : QJsonValue::Null; // Changed from -1 to 0
+    jsonObj["parent_task_id"] = (m_parentTaskId != 0) ? m_parentTaskId : QJsonValue::Null;
+    jsonObj["assignee_id"] = (m_assigneeId != 0) ? m_assigneeId : QJsonValue::Null;
     jsonObj["title"] = m_title;
     jsonObj["description"] = m_description;
     jsonObj["due_date"] = m_dueDate.toString(DATE_FORMAT);

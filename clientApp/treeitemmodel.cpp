@@ -87,7 +87,6 @@ void TreeItemModel::onTaskNotCompleted(const QModelIndex &index)
 
 void TreeItemModel::onEmployeeRemoved(int employeeId)
 {
-    // Recursive function to update items
     std::function<void(TreeItem*)> updateItems = [this, employeeId, &updateItems](TreeItem* item) {
         if (!item) return;
         
@@ -97,7 +96,6 @@ void TreeItemModel::onEmployeeRemoved(int employeeId)
             emit dataChanged(idx, idx, {Qt::DisplayRole});
         }
         
-        // Process children
         for (int i = 0; i < item->childCount(); i++)
         {
             updateItems(item->child(i));
@@ -109,7 +107,6 @@ void TreeItemModel::onEmployeeRemoved(int employeeId)
 
 void TreeItemModel::onEmployeeNameChanged(int employeeId)
 {
-    // Recursive function to update items
     std::function<void(TreeItem*)> updateItems = [this, employeeId, &updateItems](TreeItem* item) {
         if (!item) return;
         
@@ -118,7 +115,6 @@ void TreeItemModel::onEmployeeNameChanged(int employeeId)
             emit dataChanged(idx, idx, {Qt::DisplayRole});
         }
         
-        // Process children
         for (int i = 0; i < item->childCount(); i++)
         {
             updateItems(item->child(i));

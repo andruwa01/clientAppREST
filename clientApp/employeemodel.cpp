@@ -108,7 +108,7 @@ bool EmployeeModel::setData(const QModelIndex &index, const QVariant &value, int
             break;
         case Column_FullName:
             employee.fullName = value.toString();
-            emit employeeNameChanged(employee.id);  // Отправляем сигнал при изменении имени
+            emit employeeNameChanged(employee.id);
             break;
         case Column_Position:
             employee.position = value.toString();
@@ -123,23 +123,16 @@ bool EmployeeModel::setData(const QModelIndex &index, const QVariant &value, int
 
 void EmployeeModel::addEmployee(const Employee &employee)
 {
-    // For manual creation (from UI), employee.id will be 0
-    // For programmatic creation, employee.id will be the desired id
     Employee newEmployee = employee;
 
     if (employee.id == 0)
     {
-        // Manual creation - generate new unique id
         newEmployee.id = generateNextId();
     }
-    else
+    else if (!isIdUnique(employee.id))
     {
-        // Programmatic creation - check if id is unique
-        if (!isIdUnique(employee.id))
-        {
-            qWarning() << "Employee with id" << employee.id << "already exists. Generating new id.";
-            newEmployee.id = generateNextId();
-        }
+        qWarning() << "Employee with id" << employee.id << "already exists. Generating new id.";
+        newEmployee.id = generateNextId();
     }
 
     beginInsertRows(QModelIndex(), m_employees.size(), m_employees.size());

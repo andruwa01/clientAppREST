@@ -204,8 +204,7 @@ void TreeModel::setupModelDataFromJson(const QByteArray &jsonData)
 
     QJsonArray tasksArray = doc.array();
 
-    // QHash to map task ID to corresponding TreeItem
-    // we will use this to check if our new item has parent to insert into
+    // Map task ID to TreeItem for parent lookup
     QHash<int, TreeItem*> itemMap;
 
     for (const QJsonValue &value : tasksArray)

@@ -87,13 +87,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Connect employee removal handler
     connect(employeeModel, &EmployeeModel::employeeRemoved,
-            [this](int employeeId) {
-                auto *treeModel = qobject_cast<TreeItemModel*>(ui->treeView->model());
-                if(treeModel)
-                {
-                    treeModel->onEmployeeRemoved(employeeId);
-                }
-            });
+            [this](int employeeId) 
+    {
+        auto *treeModel = qobject_cast<TreeItemModel*>(ui->treeView->model());
+        if (treeModel)
+        {
+            treeModel->onEmployeeRemoved(employeeId);
+        }
+    });
 
     // Connect employee name change handler
     connect(employeeModel, &EmployeeModel::employeeNameChanged, [this](int employeeId)
@@ -212,7 +213,9 @@ void MainWindow::insertEmployee()
 {
     auto *employeeModel = qobject_cast<EmployeeModel*>(ui->tableView->model());
     if (!employeeModel)
+    {
         return;
+    }
 
     Employee newEmployee;
     newEmployee.id = 0;  // Let model/database assign proper ID
