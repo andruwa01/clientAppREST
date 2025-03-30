@@ -43,6 +43,7 @@ public:
 
 signals:
     void employeeRemoved(int employeeId);
+    void employeeNameChanged(int employeeId);  // Добавляем новый сигнал
 
 private:
     QVector<Employee> m_employees;

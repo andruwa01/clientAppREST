@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->treeView->header()->setSectionResizeMode(TreeItem::Column_Title, QHeaderView::Stretch);
     ui->treeView->header()->setSectionResizeMode(TreeItem::Column_Description, QHeaderView::Stretch);
     ui->treeView->header()->setSectionResizeMode(TreeItem::Column_DueDate, QHeaderView::Fixed);
-    ui->treeView->header()->setSectionResizeMode(TreeItem::Column_Status, QHeaderView::Fixed);
+    ui->treeView->header()->setSectionResizeMode(TreeItem::Column_Status, QHeaderView::Stretch);
     ui->treeView->header()->setSectionResizeMode(TreeItem::Column_Employee, QHeaderView::Stretch);
 
     ui->treeView->header()->resizeSection(TreeItem::Column_DueDate, 100);
@@ -87,10 +87,21 @@ MainWindow::MainWindow(QWidget *parent)
     connect(employeeModel, &EmployeeModel::employeeRemoved,
             [this](int employeeId) {
                 auto *treeModel = qobject_cast<TreeItemModel*>(ui->treeView->model());
-                if(treeModel) {
+                if(treeModel)
+                {
                     treeModel->onEmployeeRemoved(employeeId);
                 }
             });
+
+    // Connect employee name change handler
+    connect(employeeModel, &EmployeeModel::employeeNameChanged, [this](int employeeId)
+    {
+                auto *treeModel = qobject_cast<TreeItemModel*>(ui->treeView->model());
+                if(treeModel)
+                {
+                    treeModel->onEmployeeNameChanged(employeeId);
+                }
+    });
 
     connect(ui->taskCompletedAction, &QAction::triggered, [this, model]()
     {

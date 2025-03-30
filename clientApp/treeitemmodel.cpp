@@ -94,6 +94,31 @@ void TreeItemModel::onEmployeeRemoved(int employeeId)
         // Check if current item has the removed employee
         if (item->data(TreeItem::Column_Employee).toInt() == employeeId) {
             item->setData(TreeItem::Column_Employee, 0); // 0 means Not Assigned
+            // Создаем индекс для этого элемента и уведомляем о его изменении
+            QModelIndex idx = createIndex(item->rowInParentChilds(), TreeItem::Column_Employee, item);
+            emit dataChanged(idx, idx, {Qt::DisplayRole});
+        }
+        
+        // Process children
+        for (int i = 0; i < item->childCount(); ++i) {
+            updateItems(item->child(i));
+        }
+    };
+    
+    updateItems(p_rootItem.get());
+}
+
+void TreeItemModel::onEmployeeNameChanged(int employeeId)
+{
+    // Recursive function to update items
+    std::function<void(TreeItem*)> updateItems = [this, employeeId, &updateItems](TreeItem* item) {
+        if (!item) return;
+        
+        // Check if current item has the modified employee
+        if (item->data(TreeItem::Column_Employee).toInt() == employeeId) {
+            // Создаем индекс для этого элемента и уведомляем о его изменении
+            QModelIndex idx = createIndex(item->rowInParentChilds(), TreeItem::Column_Employee, item);
+            emit dataChanged(idx, idx, {Qt::DisplayRole});
         }
         
         // Process children
@@ -104,9 +129,6 @@ void TreeItemModel::onEmployeeRemoved(int employeeId)
     
     // Start from root
     updateItems(p_rootItem.get());
-    
-    // Notify views about the change
-    emit dataChanged(QModelIndex(), QModelIndex(), {Qt::DisplayRole});
 }
 
 QModelIndex TreeItemModel::index(int row, int column, const QModelIndex &parent) const

@@ -91,6 +91,7 @@ bool EmployeeModel::setData(const QModelIndex &index, const QVariant &value, int
             break;
         case Column_FullName:
             employee.fullName = value.toString();
+            emit employeeNameChanged(employee.id);  // Отправляем сигнал при изменении имени
             break;
         case Column_Position:
             employee.position = value.toString();

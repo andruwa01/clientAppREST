@@ -23,6 +23,7 @@ public slots:
     void onTaskCompleted(const QModelIndex &index);
     void onTaskNotCompleted(const QModelIndex &index);
     void onEmployeeRemoved(int employeeId);
+    void onEmployeeNameChanged(int employeeId); // Добавляем новый слот
 
     // QAbstractItemModel interface
 public:
