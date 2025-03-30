@@ -283,12 +283,14 @@ Qt::ItemFlags TreeItemModel::flags(const QModelIndex &index) const
         return Qt::NoItemFlags;
     }
 
+    Qt::ItemFlags defaultFlags = QAbstractItemModel::flags(index);
+
     if (index.column() == COLUMN_STATUS)
     {
-        return QAbstractItemModel::flags(index);
+        return defaultFlags;
     }
 
-    return Qt::ItemIsEditable | QAbstractItemModel::flags(index);
+    return defaultFlags | Qt::ItemIsEditable;
 }
 
 TreeItem *TreeItemModel::getItem(const QModelIndex &index) const
