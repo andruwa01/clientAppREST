@@ -191,7 +191,7 @@ TreeItem::TaskStatus TreeItem::stringToStatus(const QString &status) const
     if (status == "in_progress")  return TaskStatus::InProgress;
     if (status == "completed")    return TaskStatus::Completed;
 
-    qDebug() << "stringToStatus(): unknown format of status: " << status;
+    qDebug() << Q_FUNC_INFO << ": unknown format of status: " << status;
 
     return TaskStatus::New;
 }
