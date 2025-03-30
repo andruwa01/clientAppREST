@@ -16,6 +16,14 @@ class EmployeeModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
+    enum EmployeeColumns
+    {
+        Column_Id 		= 0,
+        Column_FullName = 1,
+        Column_Position = 2,
+        Column_Count 	= 3
+    };
+
     explicit EmployeeModel(QObject *parent = nullptr);
 
     // model interface
@@ -36,13 +44,7 @@ public:
 private:
     QVector<Employee> m_employees;
 
-    enum EmployeeColumns
-    {
-        Column_Id 		= 0,
-        Column_FullName = 1,
-        Column_Position = 2,
-        Column_Count 	= 3
-    };
+
 };
 
 #endif // EMPLOYEEMODEL_H

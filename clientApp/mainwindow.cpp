@@ -13,22 +13,66 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     auto *employeeModel = new EmployeeModel(this);
-    ui->view->setItemDelegateForColumn(TreeItem::Column_Employee, new EmployeeDelegate(employeeModel, this));
-
+    
+    ui->treeView->setItemDelegateForColumn(TreeItem::Column_Employee, new EmployeeDelegate(employeeModel, this));
     auto *model = new TreeItemModel(employeeModel, this);
-    ui->view->setModel(model);
+    ui->treeView->setModel(model);
+    ui->treeView->setItemDelegateForColumn(TreeItem::Column_DueDate, new DateDelegate(this));
+    
+    // tree view
+    ui->treeView->header()->setStretchLastSection(false);
+    ui->treeView->header()->setSectionResizeMode(TreeItem::Column_Title, QHeaderView::Stretch);
+    ui->treeView->header()->setSectionResizeMode(TreeItem::Column_Description, QHeaderView::Stretch);
+    ui->treeView->header()->setSectionResizeMode(TreeItem::Column_DueDate, QHeaderView::Fixed);
+    ui->treeView->header()->setSectionResizeMode(TreeItem::Column_Status, QHeaderView::Fixed);
+    ui->treeView->header()->setSectionResizeMode(TreeItem::Column_Employee, QHeaderView::Stretch);
 
-    ui->view->setItemDelegateForColumn(TreeItem::Column_DueDate, new DateDelegate(this));
+    ui->treeView->header()->resizeSection(TreeItem::Column_DueDate, 100);
+    ui->treeView->header()->resizeSection(TreeItem::Column_Status, 80);
+    ui->treeView->header()->resizeSection(TreeItem::Column_Employee, 200); // Увеличил начальную ширину
+    
+    ui->treeView->setAlternatingRowColors(true);
+    ui->treeView->expandAll();
 
-    for (int column = 0; column < model->columnCount(); column++)
-    {
-        ui->view->resizeColumnToContents(column);
+    // table view
+    ui->tableView->setModel(employeeModel);
+    ui->tableView->horizontalHeader()->setStretchLastSection(false);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(EmployeeModel::Column_Id, QHeaderView::Fixed);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(EmployeeModel::Column_FullName, QHeaderView::Stretch);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(EmployeeModel::Column_Position, QHeaderView::Stretch);
+    
+    // Установка фиксированных размеров для колонок таблицы
+    ui->tableView->horizontalHeader()->resizeSection(EmployeeModel::Column_Id, 50);
+    
+    // Установка минимальных размеров колонок
+    ui->tableView->horizontalHeader()->setMinimumSectionSize(50);
+    ui->treeView->header()->setMinimumSectionSize(50);
+    
+    // Установка минимальной высоты строк
+    ui->tableView->verticalHeader()->setMinimumSectionSize(25);
+    ui->treeView->header()->setMinimumSectionSize(25);
+    
+    // Минимальные размеры для view
+    ui->treeView->setMinimumHeight(300);
+    ui->tableView->setMinimumHeight(200);
+
+    // Общие настройки для TableView
+    ui->tableView->setAlternatingRowColors(true);
+    ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->tableView->verticalHeader()->hide();
+    
+    // Финальная подгонка размеров
+    for (int i = 0; i < ui->treeView->model()->columnCount(); ++i) {
+        ui->treeView->resizeColumnToContents(i);
     }
-    ui->view->expandAll();
-
+    
+    for (int i = 0; i < ui->tableView->model()->columnCount(); ++i) {
+        ui->tableView->resizeColumnToContents(i);
+    }
 
     connect(ui->exitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
-    connect(ui->view->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::updateActions);
+    connect(ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::updateActions);
 
     connect(ui->insertTaskAction, &QAction::triggered, this, &MainWindow::insertTask);
     connect(ui->insertSubtaskAction, &QAction::triggered, this, &MainWindow::insertSubtask);
@@ -36,11 +80,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->taskCompletedAction, &QAction::triggered, [this, model]()
     {
-        QModelIndex index = ui->view->currentIndex();
+        QModelIndex index = ui->treeView->currentIndex();
         if (index.isValid())
         {
             model->onTaskCompleted(index);
-            ui->view->viewport()->update();
+            ui->treeView->viewport()->update();
         }
         else
         {
@@ -50,11 +94,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->taskIsNotCompletedAction, &QAction::triggered, [this, model]
     {
-        QModelIndex index = ui->view->currentIndex();
+        QModelIndex index = ui->treeView->currentIndex();
         if (index.isValid())
         {
             model->onTaskNotCompleted(index);
-            ui->view->viewport()->update();
+            ui->treeView->viewport()->update();
         }
         else
         {
@@ -72,8 +116,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::insertTask()
 {
-    const QModelIndex index = ui->view->selectionModel()->currentIndex();
-    QAbstractItemModel *model = ui->view->model();
+    const QModelIndex index = ui->treeView->selectionModel()->currentIndex();
+    QAbstractItemModel *model = ui->treeView->model();
 
     // insert new task
     if (!model->insertRow(index.row() + 1, index.parent()))
@@ -93,8 +137,8 @@ void MainWindow::insertTask()
 
 void MainWindow::insertSubtask()
 {
-    QModelIndex index = ui->view->selectionModel()->currentIndex();
-    QAbstractItemModel *model = ui->view->model();
+    QModelIndex index = ui->treeView->selectionModel()->currentIndex();
+    QAbstractItemModel *model = ui->treeView->model();
 
     // to correct insert row when we chose element with index.column() != 0
     if (index.column() != 0)
@@ -123,14 +167,14 @@ void MainWindow::insertSubtask()
     }
 
     // move user selection to inserted task
-    ui->view->selectionModel()->setCurrentIndex(model->index(0, 0, index), QItemSelectionModel::ClearAndSelect);
+    ui->treeView->selectionModel()->setCurrentIndex(model->index(0, 0, index), QItemSelectionModel::ClearAndSelect);
     updateActions();
 }
 
 void MainWindow::removeTask()
 {
-    const QModelIndex index = ui->view->selectionModel()->currentIndex();
-    QAbstractItemModel *model = ui->view->model();
+    const QModelIndex index = ui->treeView->selectionModel()->currentIndex();
+    QAbstractItemModel *model = ui->treeView->model();
     if (model->removeRow(index.row(), index.parent()))
     {
         updateActions();
@@ -140,22 +184,22 @@ void MainWindow::removeTask()
 void MainWindow::updateActions()
 {
     // check if we have task to select
-    const bool hasSelection = !ui->view->selectionModel()->selection().isEmpty();
+    const bool hasSelection = !ui->treeView->selectionModel()->selection().isEmpty();
     ui->removeTaskAction->setEnabled(hasSelection);
 
-    const bool hasCurrent = ui->view->selectionModel()->currentIndex().isValid();
+    const bool hasCurrent = ui->treeView->selectionModel()->currentIndex().isValid();
 //    ui->insertTaskAction->setEnabled(hasCurrent);
     ui->taskCompletedAction->setEnabled(hasCurrent);
     ui->taskIsNotCompletedAction->setEnabled(hasCurrent);
 
     if (hasCurrent)
     {
-        ui->view->closePersistentEditor(ui->view->selectionModel()->currentIndex());
+        ui->treeView->closePersistentEditor(ui->treeView->selectionModel()->currentIndex());
 
-        const int row = ui->view->selectionModel()->currentIndex().row();
-        const int column = ui->view->selectionModel()->currentIndex().column();
+        const int row = ui->treeView->selectionModel()->currentIndex().row();
+        const int column = ui->treeView->selectionModel()->currentIndex().column();
 
-        if (ui->view->selectionModel()->currentIndex().parent().isValid())
+        if (ui->treeView->selectionModel()->currentIndex().parent().isValid())
         {
             statusBar()->showMessage(tr("Position: (%1,%2)").arg(row).arg(column));
         }
