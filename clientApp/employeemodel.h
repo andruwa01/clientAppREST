@@ -7,7 +7,7 @@
 class Employee
 {
 public:
-    int id = -1;
+    int id = 0; // Changed from -1 to 0
     QString fullName;
     QString position;
 };

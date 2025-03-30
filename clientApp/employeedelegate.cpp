@@ -15,7 +15,7 @@ QWidget* EmployeeDelegate::createEditor(QWidget *parent, const QStyleOptionViewI
     
     // Populate combo box with employee names
     const auto& employees = m_employeeModel->getEmployees();
-    editor->addItem("Not Assigned", -1); // Default option
+    editor->addItem("Not Assigned", 0);
     
     for (const Employee& emp : employees) {
         editor->addItem(emp.fullName, emp.id);
@@ -66,8 +66,8 @@ void EmployeeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     // Get employee ID from model
     int employeeId = index.data(Qt::DisplayRole).toInt();
     
-    // Convert ID to name
-    QString displayText = employeeId != -1 ? 
+    // Convert ID to name 
+    QString displayText = employeeId != 0 ?
                          m_employeeModel->getEmployeeNameById(employeeId) : 
                          "Not Assigned";
     

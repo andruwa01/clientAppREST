@@ -80,9 +80,9 @@ private:
     TreeItem *p_parentTask = nullptr;
 
 private: // data
-    int m_id = -1;
-    int m_parentTaskId = -1;
-    int m_assigneeId = -1;
+    int m_id = 0;
+    int m_parentTaskId = 0;
+    int m_assigneeId = 0;
 
     QString m_title = "";
     QString m_description = "";

@@ -46,7 +46,7 @@ TreeItemModel::TreeItemModel(EmployeeModel *employeeModel, QObject *parent)
         TreeItem *p_parentItem = p_rootItem.get();
         if (parentId != -1 && itemMap.contains(parentId))
         {
-        p_parentItem = itemMap.value(parentId);
+            p_parentItem = itemMap.value(parentId);
         }
 
         int newRow = p_parentItem->childCount();
