@@ -85,6 +85,30 @@ void TreeItemModel::onTaskNotCompleted(const QModelIndex &index)
     }
 }
 
+void TreeItemModel::onEmployeeRemoved(int employeeId)
+{
+    // Recursive function to update items
+    std::function<void(TreeItem*)> updateItems = [this, employeeId, &updateItems](TreeItem* item) {
+        if (!item) return;
+        
+        // Check if current item has the removed employee
+        if (item->data(TreeItem::Column_Employee).toInt() == employeeId) {
+            item->setData(TreeItem::Column_Employee, 0); // 0 means Not Assigned
+        }
+        
+        // Process children
+        for (int i = 0; i < item->childCount(); ++i) {
+            updateItems(item->child(i));
+        }
+    };
+    
+    // Start from root
+    updateItems(p_rootItem.get());
+    
+    // Notify views about the change
+    emit dataChanged(QModelIndex(), QModelIndex(), {Qt::DisplayRole});
+}
+
 QModelIndex TreeItemModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (parent.isValid() && parent.column() != 0)

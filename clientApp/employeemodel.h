@@ -41,6 +41,9 @@ public:
     QString getEmployeeNameById(int id) const;
     int getEmployeeIdByRow(int row) const;
 
+signals:
+    void employeeRemoved(int employeeId);
+
 private:
     QVector<Employee> m_employees;
     int m_nextId = 1;  // For auto-incrementing IDs

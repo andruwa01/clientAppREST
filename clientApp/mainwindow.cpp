@@ -83,6 +83,15 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionAddEmployee, &QAction::triggered, this, &MainWindow::insertEmployee);
     connect(ui->actionRemoveEmployee, &QAction::triggered, this, &MainWindow::removeEmployee);
 
+    // Connect employee removal handler
+    connect(employeeModel, &EmployeeModel::employeeRemoved,
+            [this](int employeeId) {
+                auto *treeModel = qobject_cast<TreeItemModel*>(ui->treeView->model());
+                if(treeModel) {
+                    treeModel->onEmployeeRemoved(employeeId);
+                }
+            });
+
     connect(ui->taskCompletedAction, &QAction::triggered, [this, model]()
     {
         QModelIndex index = ui->treeView->currentIndex();

@@ -154,9 +154,12 @@ void EmployeeModel::removeEmployee(int row)
     if (row < 0 || row >= m_employees.size())
         return;
 
+    int employeeId = m_employees[row].id;
     beginRemoveRows(QModelIndex(), row, row);
     m_employees.removeAt(row);
     endRemoveRows();
+    
+    emit employeeRemoved(employeeId);
 }
 
 QString EmployeeModel::getEmployeeNameById(int id) const
