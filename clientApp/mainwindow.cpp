@@ -13,12 +13,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     auto *employeeModel = new EmployeeModel(this);
-    // employeeModel->updateFromApi();
+    ui->view->setItemDelegateForColumn(TreeItem::Column_Employee, new EmployeeDelegate(employeeModel, this));
 
     auto *model = new TreeItemModel(employeeModel, this);
     ui->view->setModel(model);
+
     ui->view->setItemDelegateForColumn(TreeItem::Column_DueDate, new DateDelegate(this));
-    ui->view->setItemDelegateForColumn(TreeItem::Column_Employee, new EmployeeDelegate(employeeModel, this));
 
     for (int column = 0; column < model->columnCount(); column++)
     {
