@@ -43,8 +43,10 @@ public:
 
 private:
     QVector<Employee> m_employees;
+    int m_nextId = 1;  // For auto-incrementing IDs
 
-
+    bool isIdUnique(int id) const;
+    int generateNextId();
 };
 
 #endif // EMPLOYEEMODEL_H

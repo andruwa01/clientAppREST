@@ -72,6 +72,10 @@ Qt::ItemFlags EmployeeModel::flags(const QModelIndex &index) const
     if (!index.isValid())
         return Qt::NoItemFlags;
 
+    // Make id column non-editable
+    if (index.column() == Column_Id)
+        return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
 }
 
@@ -101,9 +105,48 @@ bool EmployeeModel::setData(const QModelIndex &index, const QVariant &value, int
 
 void EmployeeModel::addEmployee(const Employee &employee)
 {
+    // For manual creation (from UI), employee.id will be 0
+    // For programmatic creation, employee.id will be the desired id
+    Employee newEmployee = employee;
+
+    if (employee.id == 0)
+    {
+        // Manual creation - generate new unique id
+        newEmployee.id = generateNextId();
+    }
+    else
+    {
+        // Programmatic creation - check if id is unique
+        if (!isIdUnique(employee.id))
+        {
+            qWarning() << "Employee with id" << employee.id << "already exists. Generating new id.";
+            newEmployee.id = generateNextId();
+        }
+    }
+
     beginInsertRows(QModelIndex(), m_employees.size(), m_employees.size());
-    m_employees.append(employee);
+    m_employees.append(newEmployee);
     endInsertRows();
+}
+
+bool EmployeeModel::isIdUnique(int id) const
+{
+    return std::none_of(m_employees.begin(), m_employees.end(),
+                       [id](const Employee &emp) { return emp.id == id; });
+}
+
+int EmployeeModel::generateNextId()
+{
+    // Find maximum existing id
+    int maxId = 0;
+    for (const auto &emp : m_employees) {
+        if (emp.id > maxId) {
+            maxId = emp.id;
+        }
+    }
+    
+    // Return next available id
+    return maxId + 1;
 }
 
 void EmployeeModel::removeEmployee(int row)
