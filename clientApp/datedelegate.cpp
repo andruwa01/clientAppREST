@@ -51,3 +51,29 @@ void DateDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewI
 {
     editor->setGeometry(option.rect);
 }
+
+void DateDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    if (!index.isValid())
+    {
+        return;
+    }
+
+    // getting date from model
+    QString dateStr = index.data().toString();
+    QDate itemDate = QDate::fromString(dateStr, DATE_FORMAT);
+    QDate currentDate = QDate::currentDate();
+
+    // copy params of style
+    QStyleOptionViewItem opt = option;
+    initStyleOption(&opt, index);
+
+    // validate date
+    if (itemDate.isValid() && itemDate < currentDate)
+    {
+        opt.backgroundBrush = QBrush(QColor(255, 200, 200)); // bright-red color
+    }
+
+    // draw picture
+    QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &opt, painter);
+}
