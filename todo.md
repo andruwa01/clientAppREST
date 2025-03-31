@@ -68,6 +68,22 @@
 	Затем TreeItemModel с учетом связей с employees
 	В конце MainWindow для связывания всего вместе
 
+	У нас есть готовые файлы для работы с API:
+
+apiclient.h/cpp - базовый класс для работы с REST API
+models.h - структуры данных Task и Employee
+Следующие шаги:
+
+Нужно разработать интеграцию ApiClient с существующими моделями (TreeItemModel и EmployeeModel)
+В TreeItemModel добавить методы для синхронизации с API
+В EmployeeModel добавить методы для синхронизации с API
+В MainWindow добавить ApiClient и связать его с моделями
+Предлагаемый порядок реализации:
+
+Начать с EmployeeModel (он проще)
+Затем TreeItemModel (он зависит от EmployeeModel)
+В конце MainWindow для связывания всего вместе
+
 
 Дополнительно:
 - [ ] Изменить инициализацию элементов только на {} или ().
