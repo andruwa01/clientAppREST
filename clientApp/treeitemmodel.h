@@ -5,6 +5,10 @@
 #include "helpdefines.h"
 #include "employeemodel.h"
 
+#ifdef USE_API
+#include "apiclient.h"
+#endif
+
 #include <QAbstractItemModel>
 #include <QFile>
 #include <QJsonDocument>
@@ -19,11 +23,24 @@ public:
     explicit TreeItemModel(EmployeeModel *employeeModel, QObject *parent = nullptr);
     ~TreeItemModel() override;
 
+#ifdef USE_API
+    void setApiClient(ApiClient* client);
+    void syncWithServer();
+#endif
+
 public slots:
     void onTaskCompleted(const QModelIndex &index);
     void onTaskNotCompleted(const QModelIndex &index);
     void onEmployeeRemoved(int employeeId);
     void onEmployeeNameChanged(int employeeId);
+
+#ifdef USE_API
+private slots:
+    void handleTasksReceived(const QList<Task>& tasks);
+    void handleTaskCreated(const Task& task);
+    void handleTaskUpdated(const Task& task);
+    void handleTaskDeleted(int id);
+#endif
 
     // QAbstractItemModel interface
 public:
@@ -38,10 +55,20 @@ public:
     bool insertRows(int row, int count, const QModelIndex &parent) override;
     bool removeRows(int row, int count, const QModelIndex &parent) override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
+
 private:
     std::unique_ptr<TreeItem> p_rootItem;
     TreeItem *getItem(const QModelIndex &index) const;
     EmployeeModel *m_employeeModel;
+
+#ifdef USE_API
+    ApiClient* m_apiClient = nullptr;
+    QHash<int, TreeItem*> m_itemMap;  // Cache for quick item lookup by ID
+    
+    // Conversion helpers
+    static TreeItem* createTreeItem(const Task& task, TreeItem* parent = nullptr);
+    static Task toTask(TreeItem* item);
+#endif
 };
 
 #endif // TREEITEMMODEL_H

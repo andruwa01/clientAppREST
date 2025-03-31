@@ -124,6 +124,140 @@ void TreeItemModel::onEmployeeNameChanged(int employeeId)
     updateItems(p_rootItem.get());
 }
 
+#ifdef USE_API
+void TreeItemModel::setApiClient(ApiClient* client)
+{
+    m_apiClient = client;
+    
+    if (m_apiClient)
+    {
+        connect(m_apiClient, &ApiClient::tasksReceived, this, &TreeItemModel::handleTasksReceived);
+        connect(m_apiClient, &ApiClient::taskCreated, this, &TreeItemModel::handleTaskCreated);
+        connect(m_apiClient, &ApiClient::taskUpdated, this, &TreeItemModel::handleTaskUpdated);
+        connect(m_apiClient, &ApiClient::taskDeleted, this, &TreeItemModel::handleTaskDeleted);
+    }
+}
+
+void TreeItemModel::syncWithServer()
+{
+    if (m_apiClient)
+    {
+        m_apiClient->getTasks();
+    }
+}
+
+void TreeItemModel::handleTasksReceived(const QList<Task>& tasks)
+{
+    beginResetModel();
+    
+    // Clear existing data
+    p_rootItem = std::make_unique<TreeItem>(QJsonObject());
+    m_itemMap.clear();
+    
+    // First pass: create all items
+    for (const Task& task : tasks)
+    {
+        TreeItem* parentItem = p_rootItem.get();
+        if (task.parentTaskId != 0 && m_itemMap.contains(task.parentTaskId))
+        {
+            parentItem = m_itemMap[task.parentTaskId];
+        }
+        
+        int newRow = parentItem->childCount();
+        parentItem->insertChildren(newRow, 1);
+        TreeItem* newItem = parentItem->child(newRow);
+        
+        // Set task data
+        QJsonObject taskJson = m_apiClient->taskToJson(task);
+        newItem->setTaskDataFromJson(taskJson);
+        
+        // Cache the item
+        m_itemMap.insert(task.id, newItem);
+    }
+    
+    endResetModel();
+}
+
+void TreeItemModel::handleTaskCreated(const Task& task)
+{
+    TreeItem* parentItem = p_rootItem.get();
+    if (task.parentTaskId != 0 && m_itemMap.contains(task.parentTaskId))
+    {
+        parentItem = m_itemMap[task.parentTaskId];
+    }
+    
+    beginInsertRows(createIndex(parentItem->rowInParentChilds(), 0, parentItem), 
+                    parentItem->childCount(), parentItem->childCount());
+    
+    parentItem->insertChildren(parentItem->childCount(), 1);
+    TreeItem* newItem = parentItem->child(parentItem->childCount() - 1);
+    
+    QJsonObject taskJson = m_apiClient->taskToJson(task);
+    newItem->setTaskDataFromJson(taskJson);
+    m_itemMap.insert(task.id, newItem);
+    
+    endInsertRows();
+}
+
+void TreeItemModel::handleTaskUpdated(const Task& task)
+{
+    if (TreeItem* item = m_itemMap.value(task.id))
+    {
+        QJsonObject taskJson = m_apiClient->taskToJson(task);
+        item->setTaskDataFromJson(taskJson);
+        
+        QModelIndex topLeft = createIndex(item->rowInParentChilds(), 0, item);
+        QModelIndex bottomRight = createIndex(item->rowInParentChilds(), columnCount() - 1, item);
+        emit dataChanged(topLeft, bottomRight);
+    }
+}
+
+void TreeItemModel::handleTaskDeleted(int id)
+{
+    if (TreeItem* item = m_itemMap.value(id))
+    {
+        TreeItem* parentItem = item->parent();
+        if (!parentItem)
+        {
+            return;
+        }
+        
+        int row = item->rowInParentChilds();
+        beginRemoveRows(createIndex(parentItem->rowInParentChilds(), 0, parentItem), row, row);
+        parentItem->removeChildren(row, 1);
+        m_itemMap.remove(id);
+        endRemoveRows();
+    }
+}
+
+TreeItem* TreeItemModel::createTreeItem(const Task& task, TreeItem* parent)
+{
+    QJsonObject taskJson;
+    taskJson["id"] = task.id;
+    taskJson["parent_task_id"] = task.parentTaskId;
+    taskJson["title"] = task.title;
+    taskJson["description"] = task.description;
+    taskJson["due_date"] = task.dueDate.toString(DATE_FORMAT);
+    taskJson["status"] = task.status;
+    taskJson["assignee_id"] = task.assigneeId;
+    
+    return new TreeItem(taskJson, parent);
+}
+
+Task TreeItemModel::toTask(TreeItem* item)
+{
+    Task task;
+    task.id = item->id();
+    task.parentTaskId = item->parentTaskId();
+    task.title = item->title();
+    task.description = item->description();
+    task.dueDate = item->dueDate();
+    task.status = item->statusToString(item->status());
+    task.assigneeId = item->assigneeId();
+    return task;
+}
+#endif
+
 QModelIndex TreeItemModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (parent.isValid() && parent.column() != 0)
