@@ -193,7 +193,13 @@ Task ApiClient::parseTask(const QJsonObject& obj)
     task.description = obj["description"].toString();
     task.parentTaskId = obj["parent_task_id"].isNull() ? 0 : obj["parent_task_id"].toInt();
     task.assigneeId = obj["assignee_id"].isNull() ? 0 : obj["assignee_id"].toInt();
-    task.dueDate = QDate::fromString(obj["due_date"].toString(), Qt::ISODate); // Всегда ISO формат из API
+    
+    // Парсинг даты из API
+    QString dateStr = obj["due_date"].toString();
+    task.dueDate = QDate::fromString(dateStr, Qt::ISODate);
+    qDebug() << "Parsed date from API:" << dateStr 
+             << "as" << task.dueDate;
+    
     task.status = obj["status"].toString();
     return task;
 }
@@ -243,8 +249,12 @@ QJsonObject ApiClient::taskToJson(const Task& task)
     obj.insert("parent_task_id", task.parentTaskId == 0 ? QJsonValue(QJsonValue::Null) : QJsonValue(task.parentTaskId));
     obj.insert("assignee_id", task.assigneeId == 0 ? QJsonValue(QJsonValue::Null) : QJsonValue(task.assigneeId));
     
+    // Преобразование даты для API всегда в ISO формат
     if (task.dueDate.isValid()) {
-        obj["due_date"] = task.dueDate.toString(Qt::ISODate);
+        QString isoDate = task.dueDate.toString(Qt::ISODate);
+        qDebug() << "Converting date to ISO for API:" << task.dueDate 
+                 << "as" << isoDate;
+        obj["due_date"] = isoDate;
     } else {
         qWarning() << "Invalid date in task, using current date";
         obj["due_date"] = QDate::currentDate().toString(Qt::ISODate);

@@ -94,7 +94,12 @@ QVariant TreeItem::data(int column) const
     {
         case Column_Title:        return m_title;
         case Column_Description:  return m_description;
-        case Column_DueDate:      return m_dueDate.toString(DATE_FORMAT);
+        case Column_DueDate:      
+            if (!m_dueDate.isValid()) {
+                qWarning() << "Invalid date in TreeItem, using current";
+                return QDate::currentDate().toString(DATE_FORMAT);
+            }
+            return m_dueDate.toString(DATE_FORMAT);
         case Column_Status:       return statusToString(m_status);
         case Column_Employee:     return m_assigneeId;
         default: qWarning() << Q_FUNC_INFO << ": unknown column:" << column;
@@ -150,16 +155,21 @@ bool TreeItem::setData(int column, const QVariant &value)
     case Column_DueDate:
     {
         QString dateStr = value.toString();
+        qDebug() << "Setting date in TreeItem, input:" << dateStr;
+        
         QDate date = QDate::fromString(dateStr, DATE_FORMAT);
-        if (date.isValid())
-        {
-            m_dueDate = date;
-        } else
-        {
-            qWarning() << "Invalid date format:" << dateStr;
-            return false;
+        if (!date.isValid()) {
+            date = QDate::fromString(dateStr, Qt::ISODate);
         }
-        break;
+        
+        if (date.isValid()) {
+            m_dueDate = date;
+            qDebug() << "Date set successfully:" << m_dueDate.toString(Qt::ISODate);
+            return true;
+        }
+        
+        qWarning() << "Failed to parse date:" << dateStr;
+        return false;
     }
     case Column_Status:
     {
@@ -260,6 +270,11 @@ void TreeItem::setDescription(const QString &newDescription)
 
 const QDate &TreeItem::dueDate() const
 {
+    if (!m_dueDate.isValid()) {
+        static QDate currentDate = QDate::currentDate();
+        qWarning() << "Invalid date requested from TreeItem, returning current date";
+        return currentDate;
+    }
     return m_dueDate;
 }
 
