@@ -214,13 +214,12 @@ void MainWindow::insertEmployee()
     }
 
     Employee newEmployee;
-    newEmployee.id = 0;  // Let model/database assign proper ID
+    newEmployee.id = 0;  // ID will be assigned by model/database
     newEmployee.fullName = tr("New Employee");
     newEmployee.position = tr("Position");
     
     employeeModel->addEmployee(newEmployee);
     
-    // Select the newly added employee
     const QModelIndex newIndex = employeeModel->index(employeeModel->rowCount() - 1, 0);
     ui->tableView->setCurrentIndex(newIndex);
     ui->tableView->edit(newIndex);
@@ -246,7 +245,6 @@ void MainWindow::removeEmployee()
 
 void MainWindow::updateActions()
 {
-    // Existing task-related actions
     const bool hasTaskSelection = !ui->treeView->selectionModel()->selection().isEmpty();
     ui->removeTaskAction->setEnabled(hasTaskSelection);
 
@@ -254,12 +252,11 @@ void MainWindow::updateActions()
     ui->taskCompletedAction->setEnabled(hasCurrentTask);
     ui->taskIsNotCompletedAction->setEnabled(hasCurrentTask);
 
-    // New employee-related actions
+    // Employee-related actions
     const bool hasEmployeeSelection = ui->tableView->selectionModel() && 
                                     !ui->tableView->selectionModel()->selection().isEmpty();
     ui->actionRemoveEmployee->setEnabled(hasEmployeeSelection);
 
-    // Position display in status bar
     if (hasCurrentTask)
     {
         const int row = ui->treeView->selectionModel()->currentIndex().row();
@@ -284,7 +281,7 @@ void MainWindow::refreshData()
         return;
     }
 
-    // get data from both models
+    // Sync both models with server
     auto *employeeModel = qobject_cast<EmployeeModel*>(ui->tableView->model());
     if (employeeModel)
     {

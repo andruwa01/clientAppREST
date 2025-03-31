@@ -21,11 +21,12 @@ void TreeItem::setTaskDataFromJson(const QJsonObject &taskData)
     m_description = taskData.value("description").toString();
     QString dueDateStr = taskData.value("due_date").toString();
 
-    m_dueDate = QDate::fromString(dueDateStr, DATE_FORMAT);  // Используем UI формат для даты
+    // Parse date using UI format
+    m_dueDate = QDate::fromString(dueDateStr, DATE_FORMAT);
     if (!m_dueDate.isValid())
     {
         qWarning() << "Invalid date format:" << dueDateStr;
-        m_dueDate = QDate::currentDate();  // Используем текущую дату если не удалось распарсить
+        m_dueDate = QDate::currentDate();  // Use current date if parsing failed
     }
 
     QString statusStr = taskData.value("status").toString();
@@ -270,7 +271,8 @@ void TreeItem::setDescription(const QString &newDescription)
 
 const QDate &TreeItem::dueDate() const
 {
-    if (!m_dueDate.isValid()) {
+    if (!m_dueDate.isValid()) 
+    {
         static QDate currentDate = QDate::currentDate();
         qWarning() << "Invalid date requested from TreeItem, returning current date";
         return currentDate;

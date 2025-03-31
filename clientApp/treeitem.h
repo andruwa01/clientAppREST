@@ -29,7 +29,7 @@ public:
 public:
     explicit TreeItem(const QJsonObject &taskData, TreeItem *p_parentTask = nullptr);
 
-    // model interface methods
+    // Model interface methods
     TreeItem *child(int number);
     int childCount() const;
     int columnCount() const;
@@ -40,7 +40,7 @@ public:
     int rowInParentChilds() const;
     bool setData(int column, const QVariant &value);
 
-    // getters and setters
+    // Getters and setters
     int id() const;
     void setId(int newId);
 
@@ -62,19 +62,20 @@ public:
     int assigneeId() const;
     void setAssigneeId(int newAssigneeId);
 
-    // helper methods
+    // Helper methods
     void setTaskDataFromJson(const QJsonObject &taskData);
     QJsonObject taskDataToJson() const;
     void printTaskData();
 
     TaskStatus stringToStatus(const QString &status) const;
     QString statusToString(TaskStatus status) const;
+
 private:
-    // tree structure
+    // Tree structure
     std::vector<std::unique_ptr<TreeItem>> childTasks;
     TreeItem *p_parentTask = nullptr;
 
-private: // task data
+private: // Task data
     int m_id = 0;
     int m_parentTaskId = 0;
     int m_assigneeId = 0;
