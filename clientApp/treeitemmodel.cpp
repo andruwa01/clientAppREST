@@ -109,9 +109,18 @@ void TreeItemModel::onEmployeeRemoved(int employeeId)
         
         if (item->data(TreeItem::Column_Employee).toInt() == employeeId)
         {
-            item->setData(TreeItem::Column_Employee, 0); // 0 means Not Assigned
+            item->setData(TreeItem::Column_Employee, 0);
             QModelIndex idx = createIndex(item->rowInParentChilds(), TreeItem::Column_Employee, item);
             emit dataChanged(idx, idx, {Qt::DisplayRole});
+            
+#ifdef USE_API
+            // Обновляем каждую задачу индивидуально
+            if (m_apiClient && item->id() > 0)
+            {
+                Task task = toTask(item);
+                m_apiClient->updateTask(task.id, task);
+            }
+#endif
             updated = true;
         }
         
@@ -122,17 +131,6 @@ void TreeItemModel::onEmployeeRemoved(int employeeId)
     };
     
     updateItems(p_rootItem.get());
-
-    if (updated)
-    {
-#ifdef USE_API
-        // Update affected tasks on server if needed
-        if (m_apiClient)
-        {
-            syncWithServer();
-        }
-#endif
-    }
 }
 
 void TreeItemModel::onEmployeeNameChanged(int employeeId)
@@ -382,7 +380,7 @@ QModelIndex TreeItemModel::parent(const QModelIndex &child) const
     }
 
     TreeItem *childItem = static_cast<TreeItem*>(child.internalPointer());
-    if (!childItem || !m_itemMap.contains(childItem->id()))
+    if (!childItem)
     {
         return QModelIndex();
     }
@@ -584,7 +582,7 @@ Qt::ItemFlags TreeItemModel::flags(const QModelIndex &index) const
     }
 
     TreeItem *item = static_cast<TreeItem*>(index.internalPointer());
-    if (!item || !m_itemMap.contains(item->id()))
+    if (!item)
     {
         return Qt::NoItemFlags;
     }

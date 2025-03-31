@@ -3,16 +3,20 @@
 EmployeeModel::EmployeeModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
-    // Add some test data
-//    Employee e1{1, "John Doe", "Developer"};
-//    Employee e2{2, "Jane Smith", "Manager"};
-//    Employee e3{3, "Bob Johnson", "Designer"};
-//    Employee e5{5, "Andrew Cheprasov", "Programmer"};
+    #ifdef TEST_JSON_INPUT
 
-//    addEmployee(e1);
-//    addEmployee(e2);
-//    addEmployee(e3);
-//    addEmployee(e5);
+    // Add some test data
+    Employee e1{1, "John Doe", "Developer"};
+    Employee e2{2, "Jane Smith", "Manager"};
+    Employee e3{3, "Bob Johnson", "Designer"};
+    Employee e5{5, "Andrew Cheprasov", "Programmer"};
+
+    addEmployee(e1);
+    addEmployee(e2);
+    addEmployee(e3);
+    addEmployee(e5);
+
+    #endif
 }
 
 int EmployeeModel::rowCount(const QModelIndex &parent) const
@@ -204,11 +208,9 @@ void EmployeeModel::removeEmployee(int row)
     }
 #endif
 
-    // Local removal (when API is disabled)
     beginRemoveRows(QModelIndex(), row, row);
     m_employees.removeAt(row);
     endRemoveRows();
-    emit employeeRemoved(employeeId);
 }
 
 QString EmployeeModel::getEmployeeNameById(int id) const
