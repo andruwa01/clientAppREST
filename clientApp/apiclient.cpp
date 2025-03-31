@@ -39,8 +39,11 @@ void ApiClient::createTask(const Task& task) {
 void ApiClient::updateTask(int id, const Task& task) {
     QNetworkRequest request(QUrl(apiUrl + "/tasks/" + QString::number(id)));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    
     QJsonDocument doc(taskToJson(task));
+
+    qDebug() << "\nupdate task with id: " << id;
+    PRINT_DEBUG_JSON(doc);
+
     manager->put(request, doc.toJson());
 }
 
@@ -180,6 +183,12 @@ Task ApiClient::parseTask(const QJsonObject& obj)
 {
     Task task;
     task.id = obj["id"].toInt();
+    
+    // Добавляем отладку
+    qDebug() << "Parsing task from JSON:";
+    qDebug() << "Raw id value:" << obj["id"];
+    qDebug() << "Parsed id:" << task.id;
+    
     task.title = obj["title"].toString();
     task.description = obj["description"].toString();
     task.parentTaskId = obj["parent_task_id"].isNull() ? 0 : obj["parent_task_id"].toInt();
@@ -217,6 +226,7 @@ QJsonObject ApiClient::taskToJson(const Task& task)
 {
     // Debug input task
     qDebug() << "\nConverting Task to JSON:";
+    qDebug() << "ID:" << task.id; // Добавляем вывод ID
     qDebug() << "Title:" << task.title;
     qDebug() << "Description:" << task.description;
     qDebug() << "Parent ID:" << task.parentTaskId;
@@ -225,6 +235,7 @@ QJsonObject ApiClient::taskToJson(const Task& task)
     qDebug() << "Status:" << task.status;
 
     QJsonObject obj;
+    obj["id"] = task.id; // Добавляем ID в JSON
     obj["title"] = task.title;
     obj["description"] = task.description;
     
