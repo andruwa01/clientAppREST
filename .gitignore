@@ -2,3 +2,5 @@
 clientApp.pro.user*
 clientApp.pro.user.*
 !clientApp.pro
+*.md
+!README.md
