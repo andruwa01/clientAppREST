@@ -292,7 +292,8 @@ void MainWindow::handleApiError(const QString& error)
 
 void MainWindow::setupApiConnections()
 {
-    if (apiClient) {
+    if (apiClient)
+	{
         connect(apiClient, &ApiClient::errorOccurred, this, &MainWindow::handleApiError);
     }
 }

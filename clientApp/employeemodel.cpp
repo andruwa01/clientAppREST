@@ -156,9 +156,10 @@ void EmployeeModel::addEmployee(const Employee &employee)
     }
 
 #ifdef USE_API
-    if (m_apiClient && employee.id == 0) {
+    if (m_apiClient && employee.id == 0)
+    {
         m_apiClient->createEmployee(toApiEmployee(newEmployee));
-        return; // Сотрудник будет добавлен после получения ответа от сервера
+        return; // employee will be addes async when server will return it's data
     }
 #endif
 
@@ -196,9 +197,10 @@ void EmployeeModel::removeEmployee(int row)
     int employeeId = m_employees[row].id;
     
 #ifdef USE_API
-    if (m_apiClient) {
+    if (m_apiClient)
+    {
         m_apiClient->deleteEmployee(employeeId);
-        return; // Удаление произойдет после получения ответа от сервера
+        return; // delete performs async after we will get response from server 
     }
 #endif
 
@@ -235,7 +237,8 @@ void EmployeeModel::setApiClient(ApiClient* client)
 {
     m_apiClient = client;
     
-    if (m_apiClient) {
+    if (m_apiClient)
+    {
         connect(m_apiClient, &ApiClient::employeesReceived, this, &EmployeeModel::handleEmployeesReceived);
         connect(m_apiClient, &ApiClient::employeeCreated, this, &EmployeeModel::handleEmployeeCreated);
         connect(m_apiClient, &ApiClient::employeeUpdated, this, &EmployeeModel::handleEmployeeUpdated);
@@ -245,7 +248,8 @@ void EmployeeModel::setApiClient(ApiClient* client)
 
 void EmployeeModel::syncWithServer()
 {
-    if (m_apiClient) {
+    if (m_apiClient)
+    {
         m_apiClient->getEmployees();
     }
 }
@@ -255,7 +259,8 @@ void EmployeeModel::handleEmployeesReceived(const QList<ApiEmployee>& apiEmploye
     beginResetModel();
     m_employees.clear();
     
-    for (const auto& apiEmployee : apiEmployees) {
+    for (const auto& apiEmployee : apiEmployees)
+    {
         m_employees.append(fromApiEmployee(apiEmployee));
     }
     endResetModel();
