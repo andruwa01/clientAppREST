@@ -222,28 +222,25 @@ void TreeItemModel::handleTaskCreated(const Task& task)
     
     beginInsertRows(parentIndex, parentItem->childCount(), parentItem->childCount());
     
-    // Создаем новый элемент
     parentItem->insertChildren(parentItem->childCount(), 1);
     TreeItem* newItem = parentItem->child(parentItem->childCount() - 1);
     
-    // Важно: устанавливаем ID до установки данных
     QJsonObject taskJson = m_apiClient->taskToJson(task);
     newItem->setTaskDataFromJson(taskJson);
     
-    // Проверяем что ID валидный перед добавлением в map
-    if (task.id > 0) {
+    if (task.id > 0) 
+    {
         m_itemMap.insert(task.id, newItem);
         qDebug() << "Added new task to itemMap, id:" << task.id;
-    } else {
+    } 
+    else 
+    {
         qWarning() << "Invalid task id for new task:" << task.id;
     }
     
     endInsertRows();
 
-    // Создаем корректный индекс для нового элемента
     QModelIndex newIndex = createIndex(parentItem->childCount() - 1, 0, newItem);
-    
-    // Обновляем отображение
     emit dataChanged(newIndex, newIndex, {Qt::DisplayRole, Qt::EditRole});
 }
 
@@ -278,12 +275,13 @@ void TreeItemModel::handleTaskDeleted(int id)
             return;
         }
 
-        // Сначала собираем все ID и элементы для удаления
         QSet<int> idsToRemove;
-        std::function<void(TreeItem*)> collectIds = [&idsToRemove, &collectIds](TreeItem* item) {
+        std::function<void(TreeItem*)> collectIds = [&idsToRemove, &collectIds](TreeItem* item) 
+        {
             if (!item) return;
             idsToRemove.insert(item->id());
-            for (int i = 0; i < item->childCount(); ++i) {
+            for (int i = 0; i < item->childCount(); ++i) 
+            {
                 collectIds(item->child(i));
             }
         };
@@ -291,25 +289,20 @@ void TreeItemModel::handleTaskDeleted(int id)
         collectIds(item);
         qDebug() << "Will remove task" << id << "with subtasks. Total tasks to remove:" << idsToRemove.size();
 
-        // Создаем правильный индекс родителя
         QModelIndex parentIndex = parentItem == p_rootItem.get() ? 
                                 QModelIndex() : 
                                 createIndex(parentItem->rowInParentChilds(), 0, parentItem);
 
-        // Начинаем удаление строк
         beginRemoveRows(parentIndex, row, row);
-        
-        // Сначала удаляем элемент из дерева
         parentItem->removeChildren(row, 1);
         
-        // Только после удаления из дерева очищаем m_itemMap
-        for (int idToRemove : idsToRemove) {
+        for (int idToRemove : idsToRemove) 
+        {
             m_itemMap.remove(idToRemove);
             qDebug() << "Removed from itemMap:" << idToRemove;
         }
         
         endRemoveRows();
-        qDebug() << "Successfully removed task and all subtasks";
     }
 }
 
@@ -495,10 +488,9 @@ bool TreeItemModel::insertRows(int row, int count, const QModelIndex &parent)
 #ifdef USE_API
     if (m_apiClient)
     {
-        // API path
         Task newTask;
-        newTask.title = tr("New Task");         // Изменено
-        newTask.description = tr("Description"); // Изменено
+        newTask.title = tr("New Task");
+        newTask.description = tr("Description");
         newTask.parentTaskId = parentItem == p_rootItem.get() ? 0 : parentItem->id();
         newTask.status = "new";
         newTask.assigneeId = 0;
@@ -509,13 +501,13 @@ bool TreeItemModel::insertRows(int row, int count, const QModelIndex &parent)
     }
 #endif
 
-    // Local path
     beginInsertRows(parent, row, row + count - 1);
     const bool success = parentItem->insertChildren(row, count);
-    if (success) {
+    if (success) 
+    {
         TreeItem* newItem = parentItem->child(row);
-        newItem->setData(TreeItem::Column_Title, tr("New Task"));         // Изменено
-        newItem->setData(TreeItem::Column_Description, tr("Description")); // Изменено
+        newItem->setData(TreeItem::Column_Title, tr("New Task"));
+        newItem->setData(TreeItem::Column_Description, tr("Description"));
         newItem->setData(TreeItem::Column_Status, "new");
         newItem->setData(TreeItem::Column_DueDate, QDate::currentDate().toString(DATE_FORMAT));
     }
