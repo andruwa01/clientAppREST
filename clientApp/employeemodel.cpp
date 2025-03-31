@@ -5,7 +5,7 @@ EmployeeModel::EmployeeModel(QObject *parent)
 {
     #ifdef TEST_JSON_INPUT
 
-    // Add some test data
+    // Test data initialization
     Employee e1{1, "John Doe", "Developer"};
     Employee e2{2, "Jane Smith", "Manager"};
     Employee e3{3, "Bob Johnson", "Designer"};
@@ -163,7 +163,7 @@ void EmployeeModel::addEmployee(const Employee &employee)
     if (m_apiClient && employee.id == 0)
     {
         m_apiClient->createEmployee(toApiEmployee(newEmployee));
-        return; // employee will be addes async when server will return it's data
+        return; // Will be added asynchronously after server response
     }
 #endif
 
@@ -287,14 +287,14 @@ void EmployeeModel::handleEmployeeUpdated(const ApiEmployee& employee)
 
 void EmployeeModel::handleEmployeeDeleted(int id)
 {
-    for (int i = 0; i < m_employees.size(); ++i)
+    for (int i = 0; i < m_employees.size(); i++)
     {
         if (m_employees[i].id == id)
         {
             beginRemoveRows(QModelIndex(), i, i);
             m_employees.removeAt(i);
             endRemoveRows();
-            emit employeeRemoved(id);  // Emit signal only after actual removal
+            emit employeeRemoved(id);
             break;
         }
     }

@@ -17,12 +17,12 @@ public:
     QString position;
 };
 
-class EmployeeModel : public QAbstractTableModel
+class EmployeeModel : public QAbstractTableModel 
 {
     Q_OBJECT
 public:
     // model columns
-    enum EmployeeColumns
+    enum EmployeeColumns 
     {
         Column_Id        = 0,
         Column_FullName  = 1,
