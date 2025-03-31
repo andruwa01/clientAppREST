@@ -21,21 +21,21 @@ public:
     // Employees
     void getEmployees();
     void getEmployee(int id);
-    void createEmployee(const Employee& employee);
-    void updateEmployee(int id, const Employee& employee);
+    void createEmployee(const ApiEmployee& employee);
+    void updateEmployee(int id, const ApiEmployee& employee);
     void deleteEmployee(int id);
 
 signals:
     void tasksReceived(const QList<Task>& tasks);
     void taskReceived(const Task& task);
-    void employeesReceived(const QList<Employee>& employees);
-    void employeeReceived(const Employee& employee);
+    void employeesReceived(const QList<ApiEmployee>& employees);
+    void employeeReceived(const ApiEmployee& employee);
     void errorOccurred(const QString& error);
     void taskCreated(const Task& task);
     void taskUpdated(const Task& task);
     void taskDeleted(int id);
-    void employeeCreated(const Employee& employee);
-    void employeeUpdated(const Employee& employee);
+    void employeeCreated(const ApiEmployee& employee);
+    void employeeUpdated(const ApiEmployee& employee);
     void employeeDeleted(int id);
 
 private:
@@ -45,11 +45,11 @@ private:
     void handleNetworkReply(QNetworkReply* reply);
     QJsonDocument parseReply(QNetworkReply* reply);
     QList<Task> parseTasksArray(const QJsonArray& array);
-    QList<Employee> parseEmployeesArray(const QJsonArray& array);
+    QList<ApiEmployee> parseEmployeesArray(const QJsonArray& array);
     Task parseTask(const QJsonObject& obj);
-    Employee parseEmployee(const QJsonObject& obj);
+    ApiEmployee parseEmployee(const QJsonObject& obj);
     QJsonObject taskToJson(const Task& task);
-    QJsonObject employeeToJson(const Employee& employee);
+    QJsonObject employeeToJson(const ApiEmployee& employee);
 };
 
 #endif // APICLIENT_H

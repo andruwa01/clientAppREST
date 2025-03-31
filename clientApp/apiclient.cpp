@@ -58,7 +58,7 @@ void ApiClient::getEmployee(int id) {
     manager->get(request);
 }
 
-void ApiClient::createEmployee(const Employee& employee) {
+void ApiClient::createEmployee(const ApiEmployee& employee) {
     QNetworkRequest request(QUrl(apiUrl + "/employees"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     
@@ -66,7 +66,7 @@ void ApiClient::createEmployee(const Employee& employee) {
     manager->post(request, doc.toJson());
 }
 
-void ApiClient::updateEmployee(int id, const Employee& employee) {
+void ApiClient::updateEmployee(int id, const ApiEmployee& employee) {
     QNetworkRequest request(QUrl(apiUrl + "/employees/" + QString::number(id)));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     
@@ -122,8 +122,8 @@ Task ApiClient::parseTask(const QJsonObject& obj) {
     return task;
 }
 
-Employee ApiClient::parseEmployee(const QJsonObject& obj) {
-    Employee employee;
+ApiEmployee ApiClient::parseEmployee(const QJsonObject& obj) {
+    ApiEmployee employee;
     employee.id = obj["id"].toInt();
     employee.fullName = obj["full_name"].toString();
     employee.position = obj["position"].toString();
@@ -138,8 +138,8 @@ QList<Task> ApiClient::parseTasksArray(const QJsonArray& array) {
     return tasks;
 }
 
-QList<Employee> ApiClient::parseEmployeesArray(const QJsonArray& array) {
-    QList<Employee> employees;
+QList<ApiEmployee> ApiClient::parseEmployeesArray(const QJsonArray& array) {
+    QList<ApiEmployee> employees;
     for (const QJsonValue& value : array) {
         employees.append(parseEmployee(value.toObject()));
     }
@@ -157,7 +157,7 @@ QJsonObject ApiClient::taskToJson(const Task& task) {
     return obj;
 }
 
-QJsonObject ApiClient::employeeToJson(const Employee& employee) {
+QJsonObject ApiClient::employeeToJson(const ApiEmployee& employee) {
     QJsonObject obj;
     obj["full_name"] = employee.fullName;
     obj["position"] = employee.position;
