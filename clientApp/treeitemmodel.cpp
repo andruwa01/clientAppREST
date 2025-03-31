@@ -355,6 +355,13 @@ bool TreeItemModel::setData(const QModelIndex &index, const QVariant &value, int
         result = item->setData(index.column(), value);
         if (result)
         {
+#ifdef USE_API
+            if (m_apiClient)
+            {
+                Task task = toTask(item);
+                m_apiClient->updateTask(task.id, task);
+            }
+#endif
             emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
         }
         else
@@ -397,6 +404,19 @@ bool TreeItemModel::insertRows(int row, int count, const QModelIndex &parent)
         return false;
     }
 
+#ifdef USE_API
+    if (m_apiClient)
+    {
+        // Create new task via API
+        Task newTask;
+        newTask.parentTaskId = parentItem == p_rootItem.get() ? 0 : parentItem->id();
+        newTask.title = tr("[No data]");
+        newTask.status = "new";
+        m_apiClient->createTask(newTask);
+        return true; // Actual insertion will happen async in handleTaskCreated
+    }
+#endif
+
     beginInsertRows(parent, row, row + count - 1);
     const bool success = parentItem->insertChildren(row, count);
     endInsertRows();
@@ -412,6 +432,20 @@ bool TreeItemModel::removeRows(int row, int count, const QModelIndex &parent)
     {
         return false;
     }
+
+    TreeItem* itemToRemove = parentItem->child(row);
+    if (!itemToRemove)
+    {
+        return false;
+    }
+
+#ifdef USE_API
+    if (m_apiClient)
+    {
+        m_apiClient->deleteTask(itemToRemove->id());
+        return true; // Actual removal will happen in handleTaskDeleted
+    }
+#endif
 
     beginRemoveRows(parent, row, row + count - 1);
     const bool success = parentItem->removeChildren(row, count);
