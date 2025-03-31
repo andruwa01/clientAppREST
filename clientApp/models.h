@@ -4,13 +4,15 @@
 #include <QString>
 #include <QDate>
 
-struct Employee {
+struct Employee
+{
     int id;
     QString fullName;
     QString position;
 };
 
-struct Task {
+struct Task
+{
     int id;
     QString title;
     QString description;
