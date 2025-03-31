@@ -499,8 +499,8 @@ bool TreeItemModel::insertRows(int row, int count, const QModelIndex &parent)
     {
         // API path
         Task newTask;
-        newTask.title = tr("title");
-        newTask.description = tr("description");
+        newTask.title = tr("New Task");         // Изменено
+        newTask.description = tr("Description"); // Изменено
         newTask.parentTaskId = parentItem == p_rootItem.get() ? 0 : parentItem->id();
         newTask.status = "new";
         newTask.assigneeId = 0;
@@ -516,8 +516,8 @@ bool TreeItemModel::insertRows(int row, int count, const QModelIndex &parent)
     const bool success = parentItem->insertChildren(row, count);
     if (success) {
         TreeItem* newItem = parentItem->child(row);
-        newItem->setData(TreeItem::Column_Title, tr("title"));
-        newItem->setData(TreeItem::Column_Description, tr("description"));
+        newItem->setData(TreeItem::Column_Title, tr("New Task"));         // Изменено
+        newItem->setData(TreeItem::Column_Description, tr("Description")); // Изменено
         newItem->setData(TreeItem::Column_Status, "new");
         newItem->setData(TreeItem::Column_DueDate, QDate::currentDate().toString(DATE_FORMAT));
     }

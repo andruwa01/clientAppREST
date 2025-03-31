@@ -65,7 +65,7 @@ private:
 #ifdef USE_API
     ApiClient* m_apiClient = nullptr;
     QHash<int, TreeItem*> m_itemMap;  // Cache for quick item lookup by ID
-    
+
     // Conversion helpers
     static TreeItem* createTreeItem(const Task& task, TreeItem* parent = nullptr);
     static Task toTask(TreeItem* item);
