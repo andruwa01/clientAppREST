@@ -4,7 +4,7 @@
 #include <QString>
 #include <QDate>
 
-struct Employee
+struct ApiEmployee
 {
     int id;
     QString fullName;
