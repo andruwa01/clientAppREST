@@ -28,6 +28,11 @@ void ApiClient::createTask(const Task& task) {
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     
     QJsonDocument doc(taskToJson(task));
+    qDebug() << "\nSending POST request to /tasks:";
+    qDebug() << "URL:" << request.url().toString();
+    qDebug() << "Content-Type:" << request.header(QNetworkRequest::ContentTypeHeader).toString();
+    qDebug() << "Payload:" << doc.toJson(QJsonDocument::Compact);
+    
     manager->post(request, doc.toJson());
 }
 
@@ -81,25 +86,86 @@ void ApiClient::deleteEmployee(int id) {
 }
 
 // Parsing methods
-void ApiClient::handleNetworkReply(QNetworkReply* reply) {
+void ApiClient::handleNetworkReply(QNetworkReply* reply) 
+{
     int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    QString endpoint = reply->url().path();
+    QString method = reply->operation() == QNetworkAccessManager::DeleteOperation ? "DELETE" : 
+                    reply->operation() == QNetworkAccessManager::PostOperation ? "POST" :
+                    reply->operation() == QNetworkAccessManager::PutOperation ? "PUT" : "GET";
     
-    if (reply->error() == QNetworkReply::NoError) {
-        QJsonDocument doc = parseReply(reply);
-        QString endpoint = reply->url().path();
-        
-        if (endpoint == "/api/tasks") {
-            emit tasksReceived(parseTasksArray(doc.array()));
-        } else if (endpoint.startsWith("/api/tasks/")) {
-            emit taskReceived(parseTask(doc.object()));
-        } else if (endpoint == "/api/employees") {
-            emit employeesReceived(parseEmployeesArray(doc.array()));
-        } else if (endpoint.startsWith("/api/employees/")) {
-            emit employeeReceived(parseEmployee(doc.object()));
+    if (reply->error() == QNetworkReply::NoError) 
+    {
+        if (method == "DELETE") 
+        {
+            // Handle DELETE operations
+            if (endpoint.startsWith("/api/employees/")) 
+            {
+                int id = endpoint.section('/', -1).toInt();
+                emit employeeDeleted(id);
+            } 
+            else if (endpoint.startsWith("/api/tasks/")) 
+            {
+                int id = endpoint.section('/', -1).toInt();
+                emit taskDeleted(id);
+            }
+        } 
+        else 
+        {
+            QJsonDocument doc = parseReply(reply);
+            
+            if (endpoint == "/api/tasks") 
+            {
+                if (method == "GET")
+                {
+                    emit tasksReceived(parseTasksArray(doc.array()));
+                }
+                else if (method == "POST")
+                {
+                    emit taskCreated(parseTask(doc.object()));
+                }
+            } 
+            else if (endpoint.startsWith("/api/tasks/")) 
+            {
+                if (method == "GET")
+                {
+                    emit taskReceived(parseTask(doc.object()));
+                }
+                else if (method == "PUT")
+                {
+                    emit taskUpdated(parseTask(doc.object()));
+                }
+            } 
+            else if (endpoint == "/api/employees") 
+            {
+                if (method == "GET")
+                {
+                    emit employeesReceived(parseEmployeesArray(doc.array()));
+                }
+                else if (method == "POST")
+                {
+                    emit employeeCreated(parseEmployee(doc.object()));
+                }
+            } 
+            else if (endpoint.startsWith("/api/employees/")) 
+            {
+                if (method == "GET")
+                {
+                    emit employeeReceived(parseEmployee(doc.object()));
+                }
+                else if (method == "PUT")
+                {
+                    emit employeeUpdated(parseEmployee(doc.object()));
+                }
+            }
         }
-    } else if (statusCode == 404) {
+    } 
+    else if (statusCode == 404) 
+    {
         emit errorOccurred(tr("Resource not found"));
-    } else {
+    } 
+    else 
+    {
         emit errorOccurred(reply->errorString());
     }
     
@@ -110,14 +176,15 @@ QJsonDocument ApiClient::parseReply(QNetworkReply* reply) {
     return QJsonDocument::fromJson(reply->readAll());
 }
 
-Task ApiClient::parseTask(const QJsonObject& obj) {
+Task ApiClient::parseTask(const QJsonObject& obj) 
+{
     Task task;
     task.id = obj["id"].toInt();
     task.title = obj["title"].toString();
     task.description = obj["description"].toString();
     task.parentTaskId = obj["parent_task_id"].isNull() ? 0 : obj["parent_task_id"].toInt();
     task.assigneeId = obj["assignee_id"].isNull() ? 0 : obj["assignee_id"].toInt();
-    task.dueDate = QDate::fromString(obj["due_date"].toString(), Qt::ISODate);
+    task.dueDate = QDate::fromString(obj["due_date"].toString(), Qt::ISODate); // Всегда ISO формат из API
     task.status = obj["status"].toString();
     return task;
 }
@@ -146,14 +213,41 @@ QList<ApiEmployee> ApiClient::parseEmployeesArray(const QJsonArray& array) {
     return employees;
 }
 
-QJsonObject ApiClient::taskToJson(const Task& task) {
+QJsonObject ApiClient::taskToJson(const Task& task) 
+{
+    // Debug input task
+    qDebug() << "\nConverting Task to JSON:";
+    qDebug() << "Title:" << task.title;
+    qDebug() << "Description:" << task.description;
+    qDebug() << "Parent ID:" << task.parentTaskId;
+    qDebug() << "Assignee ID:" << task.assigneeId;
+    qDebug() << "Due Date:" << task.dueDate.toString(Qt::ISODate);
+    qDebug() << "Status:" << task.status;
+
     QJsonObject obj;
     obj["title"] = task.title;
     obj["description"] = task.description;
-    obj["parent_task_id"] = task.parentTaskId == 0 ? QJsonValue::Null : task.parentTaskId;
-    obj["assignee_id"] = task.assigneeId == 0 ? QJsonValue::Null : task.assigneeId;
-    obj["due_date"] = task.dueDate.toString(Qt::ISODate);
+    
+    // Явно создаем QJsonValue::Null для нулевых значений
+    obj.insert("parent_task_id", task.parentTaskId == 0 ? QJsonValue(QJsonValue::Null) : QJsonValue(task.parentTaskId));
+    obj.insert("assignee_id", task.assigneeId == 0 ? QJsonValue(QJsonValue::Null) : QJsonValue(task.assigneeId));
+    
+    if (task.dueDate.isValid()) {
+        obj["due_date"] = task.dueDate.toString(Qt::ISODate);
+    } else {
+        qWarning() << "Invalid date in task, using current date";
+        obj["due_date"] = QDate::currentDate().toString(Qt::ISODate);
+    }
     obj["status"] = task.status;
+    
+    // Debug resulting JSON
+    qDebug() << "\nJSON object details:";
+    qDebug() << "parent_task_id type:" << obj["parent_task_id"].type();
+    qDebug() << "parent_task_id is null?" << obj["parent_task_id"].isNull();
+    qDebug() << "assignee_id type:" << obj["assignee_id"].type();
+    qDebug() << "assignee_id is null?" << obj["assignee_id"].isNull();
+    qDebug() << "Raw JSON:" << QJsonDocument(obj).toJson(QJsonDocument::Compact);
+    
     return obj;
 }
 

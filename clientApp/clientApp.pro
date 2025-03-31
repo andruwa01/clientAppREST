@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -15,7 +15,8 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     treeitem.cpp \
-    treeitemmodel.cpp
+    treeitemmodel.cpp \
+    apiclient.cpp
 
 HEADERS += \
     datedelegate.h \
@@ -24,7 +25,9 @@ HEADERS += \
     helpdefines.h \
     mainwindow.h \
     treeitem.h \
-    treeitemmodel.h
+    treeitemmodel.h \
+    apiclient.h \
+    models.h
 
 FORMS += \
     mainwindow.ui

@@ -13,13 +13,13 @@ struct ApiEmployee
 
 struct Task
 {
-    int id;
+    int id = 0;
     QString title;
     QString description;
-    int parentTaskId;
-    int assigneeId;
-    QDate dueDate;
-    QString status;
+    int parentTaskId = 0;
+    int assigneeId = 0;
+    QDate dueDate = QDate::currentDate();  // Инициализация по умолчанию
+    QString status = "new";
 };
 
 #endif // MODELS_H

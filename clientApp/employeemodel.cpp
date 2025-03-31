@@ -200,14 +200,14 @@ void EmployeeModel::removeEmployee(int row)
     if (m_apiClient)
     {
         m_apiClient->deleteEmployee(employeeId);
-        return; // delete performs async after we will get response from server 
+        return; // Actual removal will happen in handleEmployeeDeleted
     }
 #endif
 
+    // Local removal (when API is disabled)
     beginRemoveRows(QModelIndex(), row, row);
     m_employees.removeAt(row);
     endRemoveRows();
-    
     emit employeeRemoved(employeeId);
 }
 
@@ -285,9 +285,14 @@ void EmployeeModel::handleEmployeeUpdated(const ApiEmployee& employee)
 
 void EmployeeModel::handleEmployeeDeleted(int id)
 {
-    for (int i = 0; i < m_employees.size(); ++i) {
-        if (m_employees[i].id == id) {
-            removeEmployee(i);
+    for (int i = 0; i < m_employees.size(); ++i)
+    {
+        if (m_employees[i].id == id)
+        {
+            beginRemoveRows(QModelIndex(), i, i);
+            m_employees.removeAt(i);
+            endRemoveRows();
+            emit employeeRemoved(id);  // Emit signal only after actual removal
             break;
         }
     }

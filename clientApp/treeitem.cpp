@@ -21,11 +21,11 @@ void TreeItem::setTaskDataFromJson(const QJsonObject &taskData)
     m_description = taskData.value("description").toString();
     QString dueDateStr = taskData.value("due_date").toString();
 
-    m_dueDate = QDate::fromString(dueDateStr, DATE_FORMAT);
+    m_dueDate = QDate::fromString(dueDateStr, DATE_FORMAT);  // Используем UI формат для даты
     if (!m_dueDate.isValid())
     {
-        qWarning() << "invalid date format:" << dueDateStr;
-        m_dueDate = QDate();
+        qWarning() << "Invalid date format:" << dueDateStr;
+        m_dueDate = QDate::currentDate();  // Используем текущую дату если не удалось распарсить
     }
 
     QString statusStr = taskData.value("status").toString();
@@ -42,7 +42,7 @@ QJsonObject TreeItem::taskDataToJson() const
     jsonObj["assignee_id"] = (m_assigneeId != 0) ? m_assigneeId : QJsonValue::Null;
     jsonObj["title"] = m_title;
     jsonObj["description"] = m_description;
-    jsonObj["due_date"] = m_dueDate.toString(DATE_FORMAT);
+    jsonObj["due_date"] = m_dueDate.toString(DATE_FORMAT);  // Используем UI формат для даты
     jsonObj["status"] = statusToString(m_status);
     return jsonObj;
 }

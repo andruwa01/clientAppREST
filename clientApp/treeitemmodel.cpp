@@ -72,6 +72,14 @@ void TreeItemModel::onTaskCompleted(const QModelIndex &index)
     {
         item->setData(TreeItem::Column_Status, "completed");
         emit dataChanged(index, index, {Qt::DisplayRole});
+
+#ifdef USE_API
+        if (m_apiClient)
+        {
+            Task task = toTask(item);
+            m_apiClient->updateTask(task.id, task);
+        }
+#endif
     }
 }
 
@@ -82,18 +90,29 @@ void TreeItemModel::onTaskNotCompleted(const QModelIndex &index)
     {
         item->setData(TreeItem::Column_Status, "new");
         emit dataChanged(index, index, {Qt::DisplayRole});
+
+#ifdef USE_API
+        if (m_apiClient)
+        {
+            Task task = toTask(item);
+            m_apiClient->updateTask(task.id, task);
+        }
+#endif
     }
 }
 
 void TreeItemModel::onEmployeeRemoved(int employeeId)
 {
-    std::function<void(TreeItem*)> updateItems = [this, employeeId, &updateItems](TreeItem* item) {
+    bool updated = false;
+    std::function<void(TreeItem*)> updateItems = [this, employeeId, &updated, &updateItems](TreeItem* item) {
         if (!item) return;
         
-        if (item->data(TreeItem::Column_Employee).toInt() == employeeId) {
+        if (item->data(TreeItem::Column_Employee).toInt() == employeeId)
+        {
             item->setData(TreeItem::Column_Employee, 0); // 0 means Not Assigned
             QModelIndex idx = createIndex(item->rowInParentChilds(), TreeItem::Column_Employee, item);
             emit dataChanged(idx, idx, {Qt::DisplayRole});
+            updated = true;
         }
         
         for (int i = 0; i < item->childCount(); i++)
@@ -103,6 +122,17 @@ void TreeItemModel::onEmployeeRemoved(int employeeId)
     };
     
     updateItems(p_rootItem.get());
+
+    if (updated)
+    {
+#ifdef USE_API
+        // Update affected tasks on server if needed
+        if (m_apiClient)
+        {
+            syncWithServer();
+        }
+#endif
+    }
 }
 
 void TreeItemModel::onEmployeeNameChanged(int employeeId)
@@ -180,6 +210,8 @@ void TreeItemModel::handleTasksReceived(const QList<Task>& tasks)
 
 void TreeItemModel::handleTaskCreated(const Task& task)
 {
+    qDebug() << "Handling task created signal:" << task.id << task.title;
+
     TreeItem* parentItem = p_rootItem.get();
     if (task.parentTaskId != 0 && m_itemMap.contains(task.parentTaskId))
     {
@@ -189,6 +221,9 @@ void TreeItemModel::handleTaskCreated(const Task& task)
     beginInsertRows(createIndex(parentItem->rowInParentChilds(), 0, parentItem), 
                     parentItem->childCount(), parentItem->childCount());
     
+    qDebug() << "Inserting at parent:" << parentItem 
+             << "position:" << parentItem->childCount();
+
     parentItem->insertChildren(parentItem->childCount(), 1);
     TreeItem* newItem = parentItem->child(parentItem->childCount() - 1);
     
@@ -251,7 +286,7 @@ Task TreeItemModel::toTask(TreeItem* item)
     task.parentTaskId = item->parentTaskId();
     task.title = item->title();
     task.description = item->description();
-    task.dueDate = item->dueDate();
+    task.dueDate = QDate::fromString(item->dueDate().toString(), DATE_FORMAT);  // Use macro
     task.status = item->statusToString(item->status());
     task.assigneeId = item->assigneeId();
     return task;
@@ -407,20 +442,38 @@ bool TreeItemModel::insertRows(int row, int count, const QModelIndex &parent)
 #ifdef USE_API
     if (m_apiClient)
     {
-        // Create new task via API
+        // API path
         Task newTask;
+        newTask.title = tr("title");
+        newTask.description = tr("description");
         newTask.parentTaskId = parentItem == p_rootItem.get() ? 0 : parentItem->id();
-        newTask.title = tr("[No data]");
         newTask.status = "new";
+        newTask.assigneeId = 0;
+        newTask.dueDate = QDate::currentDate();
+
+        qDebug() << "API path: Creating task via REST API";
+        qDebug() << "Task data:" << newTask.title << newTask.description 
+                 << "parent:" << newTask.parentTaskId 
+                 << "date:" << newTask.dueDate.toString(Qt::ISODate);
+
         m_apiClient->createTask(newTask);
-        return true; // Actual insertion will happen async in handleTaskCreated
+        return true;
     }
 #endif
 
+    // Local path (when USE_API is disabled)
+    qDebug() << "Local path: Creating task directly in model";
     beginInsertRows(parent, row, row + count - 1);
     const bool success = parentItem->insertChildren(row, count);
+    if (success) {
+        // Initialize the new item
+        TreeItem* newItem = parentItem->child(row);
+        newItem->setData(TreeItem::Column_Title, tr("title"));
+        newItem->setData(TreeItem::Column_Description, tr("description"));
+        newItem->setData(TreeItem::Column_Status, "new");
+        newItem->setData(TreeItem::Column_DueDate, QDate::currentDate().toString(DATE_FORMAT));
+    }
     endInsertRows();
-    qDebug() << Q_FUNC_INFO << ": parentItem->insertChildren(row, count) success:" << success;
 
     return success;
 }

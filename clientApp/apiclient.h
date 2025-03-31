@@ -5,6 +5,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include "models.h"
+#include "helpdefines.h"
 
 class ApiClient : public QObject {
     Q_OBJECT
@@ -24,6 +25,10 @@ public:
     void createEmployee(const ApiEmployee& employee);
     void updateEmployee(int id, const ApiEmployee& employee);
     void deleteEmployee(int id);
+
+    // Make conversion methods public
+    QJsonObject taskToJson(const Task& task);
+    QJsonObject employeeToJson(const ApiEmployee& employee);
 
 signals:
     void tasksReceived(const QList<Task>& tasks);
@@ -48,8 +53,6 @@ private:
     QList<ApiEmployee> parseEmployeesArray(const QJsonArray& array);
     Task parseTask(const QJsonObject& obj);
     ApiEmployee parseEmployee(const QJsonObject& obj);
-    QJsonObject taskToJson(const Task& task);
-    QJsonObject employeeToJson(const ApiEmployee& employee);
 };
 
 #endif // APICLIENT_H

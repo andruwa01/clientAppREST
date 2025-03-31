@@ -67,11 +67,9 @@ public:
     QJsonObject taskDataToJson() const;
     void printTaskData();
 
-private:
-    // helper functions
     TaskStatus stringToStatus(const QString &status) const;
     QString statusToString(TaskStatus status) const;
-
+private:
     // tree structure
     std::vector<std::unique_ptr<TreeItem>> childTasks;
     TreeItem *p_parentTask = nullptr;

@@ -13,6 +13,7 @@
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonArray>
+#include <QDate>
 
 class TreeItemModel : public QAbstractItemModel
 {
