@@ -40,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->treeView->header()->setStretchLastSection(false);
     ui->treeView->header()->setSectionResizeMode(TreeItem::Column_Title, QHeaderView::Stretch);
     ui->treeView->header()->setSectionResizeMode(TreeItem::Column_Description, QHeaderView::Stretch);
-    ui->treeView->header()->setSectionResizeMode(TreeItem::Column_DueDate, QHeaderView::Fixed);
+    ui->treeView->header()->setSectionResizeMode(TreeItem::Column_DueDate, QHeaderView::Stretch);
     ui->treeView->header()->setSectionResizeMode(TreeItem::Column_Status, QHeaderView::Stretch);
     ui->treeView->header()->setSectionResizeMode(TreeItem::Column_Employee, QHeaderView::Stretch);
 
