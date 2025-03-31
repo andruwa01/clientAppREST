@@ -18,7 +18,7 @@ struct Task
     QString description;
     int parentTaskId = 0;
     int assigneeId = 0;
-    QDate dueDate = QDate::currentDate();  // Инициализация по умолчанию
+    QDate dueDate = QDate::currentDate();
     QString status = "new";
 };
 

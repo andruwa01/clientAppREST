@@ -114,7 +114,6 @@ void TreeItemModel::onEmployeeRemoved(int employeeId)
             emit dataChanged(idx, idx, {Qt::DisplayRole});
             
 #ifdef USE_API
-            // Обновляем каждую задачу индивидуально
             if (m_apiClient && item->id() > 0)
             {
                 Task task = toTask(item);
@@ -441,7 +440,6 @@ bool TreeItemModel::setData(const QModelIndex &index, const QVariant &value, int
 #ifdef USE_API
         if (m_apiClient)
         {
-            // Проверяем ID перед отправкой на сервер
             if (item->id() <= 0) {
                 qWarning() << "Attempting to update task with invalid id:" << item->id();
                 return false;
@@ -540,7 +538,6 @@ bool TreeItemModel::removeRows(int row, int count, const QModelIndex &parent)
             return false;
         }
         
-        // Собираем все ID подзадач для отладки
         QSet<int> allTaskIds;
         std::function<void(TreeItem*)> collectIds = [&allTaskIds, &collectIds](TreeItem* item) {
             if (!item) return;
@@ -558,7 +555,6 @@ bool TreeItemModel::removeRows(int row, int count, const QModelIndex &parent)
     }
 #endif
 
-    // Local path - для локального режима без API
     beginRemoveRows(parent, row, row + count - 1);
     const bool success = parentItem->removeChildren(row, count);
     endRemoveRows();
