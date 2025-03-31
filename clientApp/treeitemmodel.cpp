@@ -210,20 +210,21 @@ void TreeItemModel::handleTasksReceived(const QList<Task>& tasks)
 
 void TreeItemModel::handleTaskCreated(const Task& task)
 {
-    qDebug() << "Handling task created signal:" << task.id << task.title;
-
     TreeItem* parentItem = p_rootItem.get();
     if (task.parentTaskId != 0 && m_itemMap.contains(task.parentTaskId))
     {
         parentItem = m_itemMap[task.parentTaskId];
     }
-    
-    beginInsertRows(createIndex(parentItem->rowInParentChilds(), 0, parentItem), 
-                    parentItem->childCount(), parentItem->childCount());
-    
-    qDebug() << "Inserting at parent:" << parentItem 
-             << "position:" << parentItem->childCount();
 
+    // Создаем правильный индекс родителя
+    QModelIndex parentIndex;
+    if (parentItem != p_rootItem.get())
+    {
+        parentIndex = createIndex(parentItem->rowInParentChilds(), 0, parentItem);
+    }
+    
+    beginInsertRows(parentIndex, parentItem->childCount(), parentItem->childCount());
+    
     parentItem->insertChildren(parentItem->childCount(), 1);
     TreeItem* newItem = parentItem->child(parentItem->childCount() - 1);
     
@@ -254,13 +255,30 @@ void TreeItemModel::handleTaskDeleted(int id)
         TreeItem* parentItem = item->parent();
         if (!parentItem)
         {
+            qWarning() << "Cannot delete task with id" << id << ": no parent item";
             return;
         }
         
         int row = item->rowInParentChilds();
+        if (row < 0)
+        {
+            qWarning() << "Cannot delete task with id" << id << ": invalid row";
+            return;
+        }
+
         beginRemoveRows(createIndex(parentItem->rowInParentChilds(), 0, parentItem), row, row);
+        
+        // Рекурсивно удаляем все ID из m_itemMap
+        std::function<void(TreeItem*)> removeFromMap = [this, removeFromMap](TreeItem* item) {
+            if (!item) return;
+            for (int i = 0; i < item->childCount(); ++i) {
+                removeFromMap(item->child(i));
+            }
+            m_itemMap.remove(item->id());
+        };
+        
+        removeFromMap(item);
         parentItem->removeChildren(row, 1);
-        m_itemMap.remove(id);
         endRemoveRows();
     }
 }
@@ -275,7 +293,6 @@ TreeItem* TreeItemModel::createTreeItem(const Task& task, TreeItem* parent)
     taskJson["due_date"] = task.dueDate.toString(DATE_FORMAT);
     taskJson["status"] = task.status;
     taskJson["assignee_id"] = task.assigneeId;
-    
     return new TreeItem(taskJson, parent);
 }
 
@@ -311,7 +328,6 @@ QModelIndex TreeItemModel::index(int row, int column, const QModelIndex &parent)
     {
         return createIndex(row, column, childItem);
     }
-
     return {};
 }
 
@@ -334,7 +350,6 @@ QModelIndex TreeItemModel::parent(const QModelIndex &child) const
     {
         returnIndex = QModelIndex();
     }
-
     return returnIndex;
 }
 
@@ -346,7 +361,6 @@ int TreeItemModel::rowCount(const QModelIndex &parent) const
     }
 
     const TreeItem *parentItem = getItem(parent);
-
     return parentItem ? parentItem->childCount() : 0;
 }
 
@@ -403,12 +417,12 @@ bool TreeItemModel::setData(const QModelIndex &index, const QVariant &value, int
         {
             qCritical() << Q_FUNC_INFO << "item->setData() returns false";
         }
-
         return result;
     }
-
-    qCritical() << Q_FUNC_INFO << "no role handler for role" << role;
-
+    else
+    {
+        qCritical() << Q_FUNC_INFO << "no role handler for role" << role;
+    }
     return result;
 }
 
@@ -426,7 +440,6 @@ QVariant TreeItemModel::headerData(int section, Qt::Orientation orientation, int
             default: return QVariant();
         }
     }
-
     return QVariant();
 }
 
@@ -451,22 +464,15 @@ bool TreeItemModel::insertRows(int row, int count, const QModelIndex &parent)
         newTask.assigneeId = 0;
         newTask.dueDate = QDate::currentDate();
 
-        qDebug() << "API path: Creating task via REST API";
-        qDebug() << "Task data:" << newTask.title << newTask.description 
-                 << "parent:" << newTask.parentTaskId 
-                 << "date:" << newTask.dueDate.toString(Qt::ISODate);
-
         m_apiClient->createTask(newTask);
         return true;
     }
 #endif
 
-    // Local path (when USE_API is disabled)
-    qDebug() << "Local path: Creating task directly in model";
+    // Local path
     beginInsertRows(parent, row, row + count - 1);
     const bool success = parentItem->insertChildren(row, count);
     if (success) {
-        // Initialize the new item
         TreeItem* newItem = parentItem->child(row);
         newItem->setData(TreeItem::Column_Title, tr("title"));
         newItem->setData(TreeItem::Column_Description, tr("description"));
@@ -495,12 +501,38 @@ bool TreeItemModel::removeRows(int row, int count, const QModelIndex &parent)
 #ifdef USE_API
     if (m_apiClient)
     {
-        m_apiClient->deleteTask(itemToRemove->id());
+        int taskId = itemToRemove->id();
+        // Проверяем что задача существует в itemMap
+        if (!m_itemMap.contains(taskId))
+        {
+            qWarning() << "Attempting to delete task that is not in itemMap:" << taskId;
+            return false;
+        }
+        m_apiClient->deleteTask(taskId);
         return true; // Actual removal will happen in handleTaskDeleted
     }
 #endif
 
+    // Рекурсивно удаляем все ID из m_itemMap
+    std::function<void(TreeItem*)> removeFromMap = [this, &removeFromMap](TreeItem* item) {
+        if (!item) return;
+        
+        // Рекурсивно обрабатываем детей
+        for (int i = 0; i < item->childCount(); ++i) {
+            removeFromMap(item->child(i));
+        }
+
+#ifdef USE_API        
+        // Удаляем текущий элемент из карты
+        m_itemMap.remove(item->id());
+#endif
+    };
+
     beginRemoveRows(parent, row, row + count - 1);
+    
+    // Очищаем все записи из m_itemMap перед удалением
+    removeFromMap(itemToRemove);
+    
     const bool success = parentItem->removeChildren(row, count);
     endRemoveRows();
 
@@ -516,7 +548,6 @@ Qt::ItemFlags TreeItemModel::flags(const QModelIndex &index) const
     }
 
     Qt::ItemFlags defaultFlags = QAbstractItemModel::flags(index);
-
     if (index.column() == TreeItem::Column_Status)
     {
         return defaultFlags;
@@ -534,6 +565,5 @@ TreeItem *TreeItemModel::getItem(const QModelIndex &index) const
             return item;
         }
     }
-
     return p_rootItem.get();
 }

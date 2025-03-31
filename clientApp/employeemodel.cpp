@@ -4,15 +4,15 @@ EmployeeModel::EmployeeModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
     // Add some test data
-    Employee e1{1, "John Doe", "Developer"};
-    Employee e2{2, "Jane Smith", "Manager"};
-    Employee e3{3, "Bob Johnson", "Designer"};
-    Employee e5{5, "Andrew Cheprasov", "Programmer"};
+//    Employee e1{1, "John Doe", "Developer"};
+//    Employee e2{2, "Jane Smith", "Manager"};
+//    Employee e3{3, "Bob Johnson", "Designer"};
+//    Employee e5{5, "Andrew Cheprasov", "Programmer"};
 
-    addEmployee(e1);
-    addEmployee(e2);
-    addEmployee(e3);
-    addEmployee(e5);
+//    addEmployee(e1);
+//    addEmployee(e2);
+//    addEmployee(e3);
+//    addEmployee(e5);
 }
 
 int EmployeeModel::rowCount(const QModelIndex &parent) const
