@@ -135,7 +135,9 @@ MainWindow::MainWindow(QWidget *parent)
         }
     });
 
+#ifdef USE_API
     setupApiConnections();
+#endif
     updateActions();
 }
 
@@ -282,6 +284,7 @@ void MainWindow::updateActions()
     }
 }
 
+#ifdef USE_API
 void MainWindow::handleApiError(const QString& error)
 {
     QMessageBox::critical(this, tr("Error"), error);
@@ -289,6 +292,8 @@ void MainWindow::handleApiError(const QString& error)
 
 void MainWindow::setupApiConnections()
 {
-//    connect(apiClient, &ApiClient::errorOccurred, this, &MainWindow::handleApiError);
-    // other api connections
+    if (apiClient) {
+        connect(apiClient, &ApiClient::errorOccurred, this, &MainWindow::handleApiError);
+    }
 }
+#endif

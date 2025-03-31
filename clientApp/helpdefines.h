@@ -6,6 +6,7 @@
 
 // Enable / disable defines
 #define TEST_JSON_INPUT
+//#define USE_API  // Uncomment to enable API integration
 
 // Printing defines
 #define PRINT_DEBUG_JSON(jsonObject) \

@@ -101,24 +101,42 @@ bool EmployeeModel::setData(const QModelIndex &index, const QVariant &value, int
     }
 
     Employee &employee = m_employees[index.row()];
+    bool changed = false;
+
     switch (index.column()) 
     {
-        case Column_Id:
-            employee.id = value.toInt();
-            break;
         case Column_FullName:
-            employee.fullName = value.toString();
-            emit employeeNameChanged(employee.id);
+            if (employee.fullName != value.toString())
+            {
+                employee.fullName = value.toString();
+                changed = true;
+            }
             break;
         case Column_Position:
-            employee.position = value.toString();
+            if (employee.position != value.toString())
+            {
+                employee.position = value.toString();
+                changed = true;
+            }
             break;
         default:
             return false;
     }
 
-    emit dataChanged(index, index, {role});
-    return true;
+    if (changed) {
+#ifdef USE_API
+        if (m_apiClient)
+        {
+            m_apiClient->updateEmployee(employee.id, toApiEmployee(employee));
+        }
+#endif
+        emit dataChanged(index, index, {role});
+        if (index.column() == Column_FullName) {
+            emit employeeNameChanged(employee.id);
+        }
+    }
+
+    return changed;
 }
 
 void EmployeeModel::addEmployee(const Employee &employee)
@@ -134,6 +152,13 @@ void EmployeeModel::addEmployee(const Employee &employee)
         qWarning() << "Employee with id" << employee.id << "already exists. Generating new id.";
         newEmployee.id = generateNextId();
     }
+
+#ifdef USE_API
+    if (m_apiClient && employee.id == 0) {
+        m_apiClient->createEmployee(toApiEmployee(newEmployee));
+        return; // Сотрудник будет добавлен после получения ответа от сервера
+    }
+#endif
 
     beginInsertRows(QModelIndex(), m_employees.size(), m_employees.size());
     m_employees.append(newEmployee);
@@ -167,6 +192,14 @@ void EmployeeModel::removeEmployee(int row)
     }
 
     int employeeId = m_employees[row].id;
+    
+#ifdef USE_API
+    if (m_apiClient) {
+        m_apiClient->deleteEmployee(employeeId);
+        return; // Удаление произойдет после получения ответа от сервера
+    }
+#endif
+
     beginRemoveRows(QModelIndex(), row, row);
     m_employees.removeAt(row);
     endRemoveRows();
@@ -194,3 +227,80 @@ int EmployeeModel::getEmployeeIdByRow(int row) const
     }
     return -1;
 }
+
+#ifdef USE_API
+void EmployeeModel::setApiClient(ApiClient* client)
+{
+    m_apiClient = client;
+    
+    if (m_apiClient) {
+        connect(m_apiClient, &ApiClient::employeesReceived, this, &EmployeeModel::handleEmployeesReceived);
+        connect(m_apiClient, &ApiClient::employeeCreated, this, &EmployeeModel::handleEmployeeCreated);
+        connect(m_apiClient, &ApiClient::employeeUpdated, this, &EmployeeModel::handleEmployeeUpdated);
+        connect(m_apiClient, &ApiClient::employeeDeleted, this, &EmployeeModel::handleEmployeeDeleted);
+    }
+}
+
+void EmployeeModel::syncWithServer()
+{
+    if (m_apiClient) {
+        m_apiClient->getEmployees();
+    }
+}
+
+void EmployeeModel::handleEmployeesReceived(const QList<ApiEmployee>& apiEmployees)
+{
+    beginResetModel();
+    m_employees.clear();
+    
+    for (const auto& apiEmployee : apiEmployees) {
+        m_employees.append(fromApiEmployee(apiEmployee));
+    }
+    endResetModel();
+}
+
+void EmployeeModel::handleEmployeeCreated(const ApiEmployee& employee)
+{
+    addEmployee(fromApiEmployee(employee));
+}
+
+void EmployeeModel::handleEmployeeUpdated(const ApiEmployee& employee)
+{
+    for (int i = 0; i < m_employees.size(); ++i) {
+        if (m_employees[i].id == employee.id) {
+            m_employees[i] = fromApiEmployee(employee);
+            emit dataChanged(index(i, 0), index(i, Column_Count - 1));
+            emit employeeNameChanged(employee.id);
+            break;
+        }
+    }
+}
+
+void EmployeeModel::handleEmployeeDeleted(int id)
+{
+    for (int i = 0; i < m_employees.size(); ++i) {
+        if (m_employees[i].id == id) {
+            removeEmployee(i);
+            break;
+        }
+    }
+}
+
+Employee EmployeeModel::fromApiEmployee(const ApiEmployee& apiEmployee)
+{
+    Employee employee;
+    employee.id = apiEmployee.id;
+    employee.fullName = apiEmployee.fullName;
+    employee.position = apiEmployee.position;
+    return employee;
+}
+
+ApiEmployee EmployeeModel::toApiEmployee(const Employee& employee)
+{
+    ApiEmployee apiEmployee;
+    apiEmployee.id = employee.id;
+    apiEmployee.fullName = employee.fullName;
+    apiEmployee.position = employee.position;
+    return apiEmployee;
+}
+#endif

@@ -3,6 +3,11 @@
 
 #include <QAbstractTableModel>
 #include <QVector>
+#include "helpdefines.h"
+
+#ifdef USE_API
+#include "apiclient.h"
+#endif
 
 class Employee
 {
@@ -42,16 +47,40 @@ public:
     QString getEmployeeNameById(int id) const;
     int getEmployeeIdByRow(int row) const;
 
+#ifdef USE_API
+    // API integration methods
+    void setApiClient(ApiClient* client);
+    void syncWithServer();
+#endif
+
 signals:
     void employeeRemoved(int employeeId);
     void employeeNameChanged(int employeeId);
+
+#ifdef USE_API
+private slots:
+    void handleEmployeesReceived(const QList<ApiEmployee>& employees);
+    void handleEmployeeCreated(const ApiEmployee& employee);
+    void handleEmployeeUpdated(const ApiEmployee& employee);
+    void handleEmployeeDeleted(int id);
+#endif
 
 private:
     QVector<Employee> m_employees;
     int m_nextId = 1;
 
+#ifdef USE_API
+    ApiClient* m_apiClient = nullptr;
+#endif
+
     bool isIdUnique(int id) const;
     int generateNextId();
+
+#ifdef USE_API
+    // Conversion helpers
+    static Employee fromApiEmployee(const ApiEmployee& apiEmployee);
+    static ApiEmployee toApiEmployee(const Employee& employee);
+#endif
 };
 
 #endif // EMPLOYEEMODEL_H
