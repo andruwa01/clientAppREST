@@ -96,7 +96,8 @@ QVariant TreeItem::data(int column) const
         case Column_Title:        return m_title;
         case Column_Description:  return m_description;
         case Column_DueDate:      
-            if (!m_dueDate.isValid()) {
+            if (!m_dueDate.isValid())
+            {
                 qWarning() << "Invalid date in TreeItem, using current";
                 return QDate::currentDate().toString(DATE_FORMAT);
             }
@@ -159,11 +160,13 @@ bool TreeItem::setData(int column, const QVariant &value)
         qDebug() << "Setting date in TreeItem, input:" << dateStr;
         
         QDate date = QDate::fromString(dateStr, DATE_FORMAT);
-        if (!date.isValid()) {
+        if (!date.isValid())
+        {
             date = QDate::fromString(dateStr, Qt::ISODate);
         }
         
-        if (date.isValid()) {
+        if (date.isValid())
+        {
             m_dueDate = date;
             qDebug() << "Date set successfully:" << m_dueDate.toString(Qt::ISODate);
             return true;
