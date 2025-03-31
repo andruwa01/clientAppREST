@@ -12,21 +12,21 @@ class ApiClient : public QObject {
 public:
     explicit ApiClient(QObject *parent = nullptr);
     
-    // Tasks
+    // Tasks API
     void getTasks();
     void getTask(int id);
     void createTask(const Task& task);
     void updateTask(int id, const Task& task);
     void deleteTask(int id);
     
-    // Employees
+    // Employees API
     void getEmployees();
     void getEmployee(int id);
     void createEmployee(const ApiEmployee& employee);
     void updateEmployee(int id, const ApiEmployee& employee);
     void deleteEmployee(int id);
 
-    // Make conversion methods public
+    // JSON conversion methods
     QJsonObject taskToJson(const Task& task);
     QJsonObject employeeToJson(const ApiEmployee& employee);
 

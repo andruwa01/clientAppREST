@@ -184,7 +184,7 @@ Task ApiClient::parseTask(const QJsonObject& obj)
     Task task;
     task.id = obj["id"].toInt();
     
-    // Debug logging
+    // Debug output
     qDebug() << "Parsing task from JSON:";
     qDebug() << "Raw id value:" << obj["id"];
     qDebug() << "Parsed id:" << task.id;
