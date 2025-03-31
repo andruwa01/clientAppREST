@@ -123,7 +123,8 @@ bool EmployeeModel::setData(const QModelIndex &index, const QVariant &value, int
             return false;
     }
 
-    if (changed) {
+    if (changed)
+    {
 #ifdef USE_API
         if (m_apiClient)
         {
@@ -131,7 +132,8 @@ bool EmployeeModel::setData(const QModelIndex &index, const QVariant &value, int
         }
 #endif
         emit dataChanged(index, index, {role});
-        if (index.column() == Column_FullName) {
+        if (index.column() == Column_FullName)
+        {
             emit employeeNameChanged(employee.id);
         }
     }

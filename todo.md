@@ -46,10 +46,13 @@
 		- [x] возможность удалять сотрудника.
 
 - [ ] Интеграция с rest api.
-	- [ ] Создать класс ApiClient для работы с REST API
+	- [x] Создать класс ApiClient для работы с REST API
 	- [ ] Добавить модели данных Task и Employee
 	- [ ] Модифицировать TreeItemModel для работы с новыми моделями
 	- [ ] Обновить MainWindow для использования ApiClient
+
+FIXME:
+	- [ ] подумать, может изменить в employeemodel.cpp так, чтобы не было два emit на Fullname changed.
 
 	Изменить TreeItemModel:
 	Добавить обновление данных из API
