@@ -13,11 +13,27 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+#ifdef USE_API
+    // initialize API client
+    apiClient = new ApiClient(this);
+#endif
+
     auto *employeeModel = new EmployeeModel(this);
     
+#ifdef USE_API
+    // connect employee model with API
+    employeeModel->setApiClient(apiClient);
+#endif
+
     ui->treeView->setItemDelegateForColumn(TreeItem::Column_Employee, new EmployeeDelegate(employeeModel, this));
     auto *model = new TreeItemModel(employeeModel, this);
     ui->treeView->setModel(model);
+
+#ifdef USE_API
+    // connect tree model with API
+    model->setApiClient(apiClient);
+#endif
+
     ui->treeView->setItemDelegateForColumn(TreeItem::Column_DueDate, new DateDelegate(this));
     
     // tree view settings
@@ -285,16 +301,42 @@ void MainWindow::updateActions()
 }
 
 #ifdef USE_API
-void MainWindow::handleApiError(const QString& error)
+void MainWindow::refreshData()
 {
-    QMessageBox::critical(this, tr("Error"), error);
+    if (!apiClient)
+    {
+        return;
+    }
+
+    // get data from both models
+    auto *employeeModel = qobject_cast<EmployeeModel*>(ui->tableView->model());
+    if (employeeModel)
+    {
+        employeeModel->syncWithServer();
+    }
+
+    auto *treeModel = qobject_cast<TreeItemModel*>(ui->treeView->model());
+    if (treeModel)
+    {
+        treeModel->syncWithServer();
+    }
 }
 
 void MainWindow::setupApiConnections()
 {
-    if (apiClient)
-	{
-        connect(apiClient, &ApiClient::errorOccurred, this, &MainWindow::handleApiError);
+    if (!apiClient)
+    {
+        return;
     }
+
+    connect(apiClient, &ApiClient::errorOccurred, this, &MainWindow::handleApiError);
+    
+    // initial data load
+    refreshData();
+}
+
+void MainWindow::handleApiError(const QString& error)
+{
+    QMessageBox::critical(this, tr("Error"), error);
 }
 #endif
