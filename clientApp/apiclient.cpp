@@ -184,7 +184,7 @@ Task ApiClient::parseTask(const QJsonObject& obj)
     Task task;
     task.id = obj["id"].toInt();
     
-    // Добавляем отладку
+    // Debug logging
     qDebug() << "Parsing task from JSON:";
     qDebug() << "Raw id value:" << obj["id"];
     qDebug() << "Parsed id:" << task.id;
@@ -194,7 +194,7 @@ Task ApiClient::parseTask(const QJsonObject& obj)
     task.parentTaskId = obj["parent_task_id"].isNull() ? 0 : obj["parent_task_id"].toInt();
     task.assigneeId = obj["assignee_id"].isNull() ? 0 : obj["assignee_id"].toInt();
     
-    // Парсинг даты из API
+    // Parse date from API
     QString dateStr = obj["due_date"].toString();
     task.dueDate = QDate::fromString(dateStr, Qt::ISODate);
     qDebug() << "Parsed date from API:" << dateStr 
@@ -230,9 +230,9 @@ QList<ApiEmployee> ApiClient::parseEmployeesArray(const QJsonArray& array) {
 
 QJsonObject ApiClient::taskToJson(const Task& task) 
 {
-    // Debug input task
+    // Debug task object
     qDebug() << "\nConverting Task to JSON:";
-    qDebug() << "ID:" << task.id; // Добавляем вывод ID
+    qDebug() << "ID:" << task.id;
     qDebug() << "Title:" << task.title;
     qDebug() << "Description:" << task.description;
     qDebug() << "Parent ID:" << task.parentTaskId;
@@ -241,27 +241,29 @@ QJsonObject ApiClient::taskToJson(const Task& task)
     qDebug() << "Status:" << task.status;
 
     QJsonObject obj;
-    obj["id"] = task.id; // Добавляем ID в JSON
+    obj["id"] = task.id;
     obj["title"] = task.title;
     obj["description"] = task.description;
     
-    // Явно создаем QJsonValue::Null для нулевых значений
     obj.insert("parent_task_id", task.parentTaskId == 0 ? QJsonValue(QJsonValue::Null) : QJsonValue(task.parentTaskId));
     obj.insert("assignee_id", task.assigneeId == 0 ? QJsonValue(QJsonValue::Null) : QJsonValue(task.assigneeId));
     
-    // Преобразование даты для API всегда в ISO формат
-    if (task.dueDate.isValid()) {
+    // Convert date to ISO format for API
+    if (task.dueDate.isValid()) 
+    {
         QString isoDate = task.dueDate.toString(Qt::ISODate);
         qDebug() << "Converting date to ISO for API:" << task.dueDate 
                  << "as" << isoDate;
         obj["due_date"] = isoDate;
-    } else {
+    } 
+    else 
+    {
         qWarning() << "Invalid date in task, using current date";
         obj["due_date"] = QDate::currentDate().toString(Qt::ISODate);
     }
     obj["status"] = task.status;
     
-    // Debug resulting JSON
+    // Debug JSON output
     qDebug() << "\nJSON object details:";
     qDebug() << "parent_task_id type:" << obj["parent_task_id"].type();
     qDebug() << "parent_task_id is null?" << obj["parent_task_id"].isNull();
