@@ -1,4 +1,4 @@
-/build-clientApp-Desktop-Debug/
+/build*/
 clientApp.pro.user*
 clientApp.pro.user.*
 !clientApp.pro
