@@ -14,139 +14,13 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
 #ifdef USE_API
-    // initialize API client
     apiClient = new ApiClient(this);
 #endif
 
-    auto *employeeModel = new EmployeeModel(this);
-    
-#ifdef USE_API
-    // connect employee model with API
-    employeeModel->setApiClient(apiClient);
-#endif
-
-    ui->treeView->setItemDelegateForColumn(TreeItem::Column_Employee, new EmployeeDelegate(employeeModel, this));
-    auto *model = new TreeItemModel(employeeModel, this);
-    ui->treeView->setModel(model);
-
-#ifdef USE_API
-    // connect tree model with API
-    model->setApiClient(apiClient);
-#endif
-
-    ui->treeView->setItemDelegateForColumn(TreeItem::Column_DueDate, new DateDelegate(this));
-    
-    // tree view settings
-    ui->treeView->header()->setStretchLastSection(false);
-    ui->treeView->header()->setSectionResizeMode(TreeItem::Column_Title, QHeaderView::Stretch);
-    ui->treeView->header()->setSectionResizeMode(TreeItem::Column_Description, QHeaderView::Stretch);
-    ui->treeView->header()->setSectionResizeMode(TreeItem::Column_DueDate, QHeaderView::Stretch);
-    ui->treeView->header()->setSectionResizeMode(TreeItem::Column_Status, QHeaderView::Stretch);
-    ui->treeView->header()->setSectionResizeMode(TreeItem::Column_Employee, QHeaderView::Stretch);
-
-    ui->treeView->header()->resizeSection(TreeItem::Column_DueDate, 100);
-    ui->treeView->header()->resizeSection(TreeItem::Column_Status, 80);
-    ui->treeView->header()->resizeSection(TreeItem::Column_Employee, 200); // increase initial width
-    
-    ui->treeView->setAlternatingRowColors(true);
-    ui->treeView->expandAll();
-
-    // table view settings
-    ui->tableView->setModel(employeeModel);
-    ui->tableView->horizontalHeader()->setStretchLastSection(false);
-    ui->tableView->horizontalHeader()->setSectionResizeMode(EmployeeModel::Column_Id, QHeaderView::Fixed);
-    ui->tableView->horizontalHeader()->setSectionResizeMode(EmployeeModel::Column_FullName, QHeaderView::Stretch);
-    ui->tableView->horizontalHeader()->setSectionResizeMode(EmployeeModel::Column_Position, QHeaderView::Stretch);
-    
-    // set fixed column sizes for table
-    ui->tableView->horizontalHeader()->resizeSection(EmployeeModel::Column_Id, 50);
-    
-    // set minimum column sizes
-    ui->tableView->horizontalHeader()->setMinimumSectionSize(50);
-    ui->treeView->header()->setMinimumSectionSize(50);
-    
-    // set minimum row heights
-    ui->tableView->verticalHeader()->setMinimumSectionSize(25);
-    ui->treeView->header()->setMinimumSectionSize(25);
-    
-    // set minimum view sizes
-    ui->treeView->setMinimumHeight(300);
-    ui->tableView->setMinimumHeight(200);
-
-    // general TableView settings
-    ui->tableView->setAlternatingRowColors(true);
-    ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
-    ui->tableView->verticalHeader()->hide();
-    
-    // final size adjustments
-    for (int i = 0; i < ui->treeView->model()->columnCount(); i++)
-    {
-        ui->treeView->resizeColumnToContents(i);
-    }
-    
-    for (int i = 0; i < ui->tableView->model()->columnCount(); i++)
-    {
-        ui->tableView->resizeColumnToContents(i);
-    }
-
-    connect(ui->exitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
-    connect(ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::updateActions);
-    connect(ui->tableView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::updateActions);
-
-    connect(ui->insertTaskAction, &QAction::triggered, this, &MainWindow::insertTask);
-    connect(ui->insertSubtaskAction, &QAction::triggered, this, &MainWindow::insertSubtask);
-    connect(ui->removeTaskAction, &QAction::triggered, this, &MainWindow::removeTask);
-    
-    connect(ui->actionAddEmployee, &QAction::triggered, this, &MainWindow::insertEmployee);
-    connect(ui->actionRemoveEmployee, &QAction::triggered, this, &MainWindow::removeEmployee);
-
-    connect(employeeModel, &EmployeeModel::employeeRemoved,
-            [this](int employeeId) 
-    {
-        auto *treeModel = qobject_cast<TreeItemModel*>(ui->treeView->model());
-        if (treeModel)
-        {
-            treeModel->onEmployeeRemoved(employeeId);
-        }
-    });
-
-    connect(employeeModel, &EmployeeModel::employeeNameChanged, [this](int employeeId)
-    {
-                auto *treeModel = qobject_cast<TreeItemModel*>(ui->treeView->model());
-                if(treeModel)
-                {
-                    treeModel->onEmployeeNameChanged(employeeId);
-                }
-    });
-
-    connect(ui->taskCompletedAction, &QAction::triggered, [this, model]()
-    {
-        QModelIndex index = ui->treeView->currentIndex();
-        if (index.isValid())
-        {
-            model->onTaskCompleted(index);
-            ui->treeView->viewport()->update();
-        }
-        else
-        {
-            qCritical() << Q_FUNC_INFO << ": invalid index";
-        }
-    });
-
-    connect(ui->taskIsNotCompletedAction, &QAction::triggered, [this, model]
-    {
-        QModelIndex index = ui->treeView->currentIndex();
-        if (index.isValid())
-        {
-            model->onTaskNotCompleted(index);
-            ui->treeView->viewport()->update();
-        }
-        else
-        {
-            qCritical() << Q_FUNC_INFO << ": invalid index";
-        }
-    });
+    initializeModels();
+    setupTreeView();
+    setupTableView();
+    setupConnections();
 
 #ifdef USE_API
     setupApiConnections();
@@ -157,6 +31,135 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::setupTreeView()
+{
+    ui->treeView->setAlternatingRowColors(true);
+    ui->treeView->header()->setStretchLastSection(false);
+    ui->treeView->header()->setSectionResizeMode(TreeItem::Column_Title, QHeaderView::Stretch);
+    ui->treeView->header()->setSectionResizeMode(TreeItem::Column_Description, QHeaderView::Stretch);
+    ui->treeView->header()->setSectionResizeMode(TreeItem::Column_DueDate, QHeaderView::Stretch);
+    ui->treeView->header()->setSectionResizeMode(TreeItem::Column_Status, QHeaderView::Stretch);
+    ui->treeView->header()->setSectionResizeMode(TreeItem::Column_Employee, QHeaderView::Stretch);
+
+    ui->treeView->header()->resizeSection(TreeItem::Column_DueDate, 100);
+    ui->treeView->header()->resizeSection(TreeItem::Column_Status, 80);
+    ui->treeView->header()->resizeSection(TreeItem::Column_Employee, 200);
+
+    ui->treeView->header()->setMinimumSectionSize(50);
+    ui->treeView->setMinimumHeight(300);
+    ui->treeView->expandAll();
+
+    for (int i = 0; i < ui->treeView->model()->columnCount(); i++)
+    {
+        ui->treeView->resizeColumnToContents(i);
+    }
+}
+
+void MainWindow::setupTableView()
+{
+    ui->tableView->setAlternatingRowColors(true);
+    ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->tableView->verticalHeader()->hide();
+
+    ui->tableView->horizontalHeader()->setStretchLastSection(false);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(EmployeeModel::Column_Id, QHeaderView::Fixed);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(EmployeeModel::Column_FullName, QHeaderView::Stretch);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(EmployeeModel::Column_Position, QHeaderView::Stretch);
+
+    ui->tableView->horizontalHeader()->resizeSection(EmployeeModel::Column_Id, 50);
+    ui->tableView->horizontalHeader()->setMinimumSectionSize(50);
+    ui->tableView->setMinimumHeight(200);
+
+    ui->tableView->verticalHeader()->setMinimumSectionSize(25);
+
+    for (int i = 0; i < ui->tableView->model()->columnCount(); i++)
+    {
+        ui->tableView->resizeColumnToContents(i);
+    }
+}
+
+void MainWindow::initializeModels()
+{
+    auto *employeesModel = new EmployeeModel(this);
+
+#ifdef USE_API
+    employeesModel->setApiClient(apiClient);
+#endif
+
+    ui->tableView->setModel(employeesModel);
+
+    auto *tasksModel = new TreeItemModel(employeesModel, this);
+    ui->treeView->setModel(tasksModel);
+
+#ifdef USE_API
+    tasksModel->setApiClient(apiClient);
+#endif
+
+    ui->treeView->setItemDelegateForColumn(TreeItem::Column_Employee, new EmployeeDelegate(employeesModel, this));
+    ui->treeView->setItemDelegateForColumn(TreeItem::Column_DueDate, new DateDelegate(this));
+}
+
+void MainWindow::setupConnections()
+{
+    connect(ui->exitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
+    connect(ui->treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::updateActions);
+    connect(ui->tableView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::updateActions);
+
+    connect(ui->insertTaskAction, &QAction::triggered, this, &MainWindow::insertTask);
+    connect(ui->insertSubtaskAction, &QAction::triggered, this, &MainWindow::insertSubtask);
+    connect(ui->removeTaskAction, &QAction::triggered, this, &MainWindow::removeTask);
+
+    connect(ui->actionAddEmployee, &QAction::triggered, this, &MainWindow::insertEmployee);
+    connect(ui->actionRemoveEmployee, &QAction::triggered, this, &MainWindow::removeEmployee);
+
+    connect(ui->taskCompletedAction, &QAction::triggered, [this]() { handleTaskStatusChange(true); });
+    connect(ui->taskIsNotCompletedAction, &QAction::triggered, [this]() { handleTaskStatusChange(false); });
+
+    auto *employeeModel = qobject_cast<EmployeeModel*>(ui->tableView->model());
+    if (employeeModel)
+    {
+        connect(employeeModel, &EmployeeModel::employeeRemoved, [this](int employeeId)
+        {
+            auto *treeModel = qobject_cast<TreeItemModel*>(ui->treeView->model());
+            if (treeModel)
+            {
+                treeModel->onEmployeeRemoved(employeeId);
+            }
+        });
+
+        connect(employeeModel, &EmployeeModel::employeeNameChanged, [this](int employeeId)
+        {
+            auto *treeModel = qobject_cast<TreeItemModel*>(ui->treeView->model());
+            if (treeModel)
+            {
+                treeModel->onEmployeeNameChanged(employeeId);
+            }
+        });
+    }
+}
+
+void MainWindow::handleTaskStatusChange(bool completed)
+{
+    QModelIndex index = ui->treeView->currentIndex();
+    if (!index.isValid())
+    {
+        qCritical() << Q_FUNC_INFO << ": invalid index";
+        return;
+    }
+
+    auto *model = qobject_cast<TreeItemModel*>(ui->treeView->model());
+    if (completed)
+    {
+        model->onTaskCompleted(index);
+    }
+    else
+    {
+        model->onTaskNotCompleted(index);
+    }
+    ui->treeView->viewport()->update();
 }
 
 void MainWindow::insertTask()
@@ -187,8 +190,8 @@ void MainWindow::insertSubtask()
         return;
     }
 
-    ui->treeView->selectionModel()->setCurrentIndex(model->index(0, 0, index), 
-                                                   QItemSelectionModel::ClearAndSelect);
+    ui->treeView->selectionModel()->setCurrentIndex(model->index(0, 0, index),
+                                                    QItemSelectionModel::ClearAndSelect);
     updateActions();
 }
 
@@ -211,12 +214,12 @@ void MainWindow::insertEmployee()
     }
 
     Employee newEmployee;
-    newEmployee.id = 0;  // ID will be assigned by model/database
+    newEmployee.id = 0;
     newEmployee.fullName = tr("New Employee");
     newEmployee.position = tr("Position");
-    
+
     employeeModel->addEmployee(newEmployee);
-    
+
     const QModelIndex newIndex = employeeModel->index(employeeModel->rowCount() - 1, 0);
     ui->tableView->setCurrentIndex(newIndex);
     ui->tableView->edit(newIndex);
@@ -229,7 +232,7 @@ void MainWindow::removeEmployee()
     {
         return;
     }
-        
+
     auto *employeeModel = qobject_cast<EmployeeModel*>(ui->tableView->model());
     if (!employeeModel)
     {
@@ -249,8 +252,8 @@ void MainWindow::updateActions()
     ui->taskCompletedAction->setEnabled(hasCurrentTask);
     ui->taskIsNotCompletedAction->setEnabled(hasCurrentTask);
 
-    const bool hasEmployeeSelection = ui->tableView->selectionModel() && 
-                                    !ui->tableView->selectionModel()->selection().isEmpty();
+    const bool hasEmployeeSelection = ui->tableView->selectionModel() &&
+                                      !ui->tableView->selectionModel()->selection().isEmpty();
     ui->actionRemoveEmployee->setEnabled(hasEmployeeSelection);
 
     if (hasCurrentTask)
@@ -277,8 +280,6 @@ void MainWindow::refreshData()
         return;
     }
 
-    // Sync both models with server
-
     auto *employeeModel = qobject_cast<EmployeeModel*>(ui->tableView->model());
     if (employeeModel)
     {
@@ -300,12 +301,11 @@ void MainWindow::setupApiConnections()
     }
 
     connect(apiClient, &ApiClient::errorOccurred, this, &MainWindow::handleApiError);
-    
-    // initial data load
+
     refreshData();
 }
 
-void MainWindow::handleApiError(const QString& error)
+void MainWindow::handleApiError(const QString &error)
 {
     QMessageBox::critical(this, tr("Error"), error);
 }

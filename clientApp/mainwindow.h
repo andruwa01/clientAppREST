@@ -39,10 +39,18 @@ private slots:
     void removeEmployee();
 
 private:
+    void setupTreeView();
+    void setupTableView();
+    void initializeModels();
+    void setupConnections();
+    void handleTaskStatusChange(bool completed);
+
+private:
     Ui::MainWindow *ui;
 #ifdef USE_API
     ApiClient* apiClient;
     void setupApiConnections();
 #endif
 };
+
 #endif // MAINWINDOW_H
