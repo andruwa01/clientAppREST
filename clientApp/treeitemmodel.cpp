@@ -1,7 +1,5 @@
 #include "treeitemmodel.h"
 
-// update new column
-
 TreeItemModel::TreeItemModel(EmployeeModel *employeeModel, QObject *parent)
     : QAbstractItemModel{parent}, m_employeeModel(employeeModel)
 {
