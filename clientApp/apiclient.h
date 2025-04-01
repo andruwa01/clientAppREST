@@ -7,7 +7,8 @@
 #include "models.h"
 #include "helpdefines.h"
 
-class ApiClient : public QObject {
+class ApiClient : public QObject
+{
     Q_OBJECT
 public:
     explicit ApiClient(QObject *parent = nullptr);
