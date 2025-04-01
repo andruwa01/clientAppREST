@@ -5,8 +5,6 @@ DateDelegate::DateDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
 {}
 
-DateDelegate::~DateDelegate() = default;
-
 QWidget *DateDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &, const QModelIndex &index) const
 {
     if (index.column() != TreeItem::Column_DueDate)

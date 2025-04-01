@@ -12,7 +12,6 @@ class DateDelegate : public QStyledItemDelegate
     Q_OBJECT
 public:
     explicit DateDelegate(QObject *parent = nullptr);
-    virtual ~DateDelegate() override;
 
     // QAbstractItemDelegate interface
 public:

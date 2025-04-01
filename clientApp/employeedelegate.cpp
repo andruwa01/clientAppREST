@@ -5,8 +5,7 @@
 EmployeeDelegate::EmployeeDelegate(EmployeeModel *employeeModel, QObject *parent)
     : QStyledItemDelegate(parent)
     , m_employeeModel(employeeModel)
-{
-}
+{}
 
 QWidget* EmployeeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &, const QModelIndex &) const
 {
@@ -69,8 +68,8 @@ void EmployeeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 
     int employeeId = index.data(Qt::DisplayRole).toInt();
     QString displayText = employeeId != 0 ?
-                         m_employeeModel->getEmployeeNameById(employeeId) : 
-                         "Not Assigned";
+                          m_employeeModel->getEmployeeNameById(employeeId) : 
+                          "Not Assigned";
     
     opt.text = displayText;
     QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &opt, painter);
