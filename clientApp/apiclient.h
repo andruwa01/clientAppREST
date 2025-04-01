@@ -53,6 +53,7 @@ private:
     QList<ApiEmployee> parseEmployeesArray(const QJsonArray& array);
     Task parseTask(const QJsonObject& obj);
     ApiEmployee parseEmployee(const QJsonObject& obj);
+    QString getRequestMethod(QNetworkReply* reply);
 };
 
 #endif // APICLIENT_H

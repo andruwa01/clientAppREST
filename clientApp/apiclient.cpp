@@ -5,25 +5,29 @@
 #include <QNetworkRequest>
 #include <QUrlQuery>
 
-ApiClient::ApiClient(QObject *parent) : QObject(parent) {
+ApiClient::ApiClient(QObject *parent) : QObject(parent) 
+{
     manager = new QNetworkAccessManager(this);
     connect(manager, &QNetworkAccessManager::finished, this, &ApiClient::handleNetworkReply);
 }
 
 // Tasks methods
-void ApiClient::getTasks() {
+void ApiClient::getTasks() 
+{
     QNetworkRequest request(QUrl(apiUrl + "/tasks"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     manager->get(request);
 }
 
-void ApiClient::getTask(int id) {
+void ApiClient::getTask(int id) 
+{
     QNetworkRequest request(QUrl(apiUrl + "/tasks/" + QString::number(id)));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     manager->get(request);
 }
 
-void ApiClient::createTask(const Task& task) {
+void ApiClient::createTask(const Task& task) 
+{
     QNetworkRequest request(QUrl(apiUrl + "/tasks"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     
@@ -36,7 +40,8 @@ void ApiClient::createTask(const Task& task) {
     manager->post(request, doc.toJson());
 }
 
-void ApiClient::updateTask(int id, const Task& task) {
+void ApiClient::updateTask(int id, const Task& task) 
+{
     QNetworkRequest request(QUrl(apiUrl + "/tasks/" + QString::number(id)));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     QJsonDocument doc(taskToJson(task));
@@ -47,26 +52,30 @@ void ApiClient::updateTask(int id, const Task& task) {
     manager->put(request, doc.toJson());
 }
 
-void ApiClient::deleteTask(int id) {
+void ApiClient::deleteTask(int id) 
+{
     QNetworkRequest request(QUrl(apiUrl + "/tasks/" + QString::number(id)));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     manager->deleteResource(request);
 }
 
 // Employees methods
-void ApiClient::getEmployees() {
+void ApiClient::getEmployees() 
+{
     QNetworkRequest request(QUrl(apiUrl + "/employees"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     manager->get(request);
 }
 
-void ApiClient::getEmployee(int id) {
+void ApiClient::getEmployee(int id) 
+{
     QNetworkRequest request(QUrl(apiUrl + "/employees/" + QString::number(id)));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     manager->get(request);
 }
 
-void ApiClient::createEmployee(const ApiEmployee& employee) {
+void ApiClient::createEmployee(const ApiEmployee& employee) 
+{
     QNetworkRequest request(QUrl(apiUrl + "/employees"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     
@@ -74,7 +83,8 @@ void ApiClient::createEmployee(const ApiEmployee& employee) {
     manager->post(request, doc.toJson());
 }
 
-void ApiClient::updateEmployee(int id, const ApiEmployee& employee) {
+void ApiClient::updateEmployee(int id, const ApiEmployee& employee) 
+{
     QNetworkRequest request(QUrl(apiUrl + "/employees/" + QString::number(id)));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     
@@ -82,20 +92,37 @@ void ApiClient::updateEmployee(int id, const ApiEmployee& employee) {
     manager->put(request, doc.toJson());
 }
 
-void ApiClient::deleteEmployee(int id) {
+void ApiClient::deleteEmployee(int id) 
+{
     QNetworkRequest request(QUrl(apiUrl + "/employees/" + QString::number(id)));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
     manager->deleteResource(request);
 }
 
 // Parsing methods
+QString ApiClient::getRequestMethod(QNetworkReply* reply) 
+{
+    switch (reply->operation()) 
+    {
+        case QNetworkAccessManager::GetOperation:
+            return "GET";
+        case QNetworkAccessManager::DeleteOperation:
+            return "DELETE";
+        case QNetworkAccessManager::PostOperation:
+            return "POST";
+        case QNetworkAccessManager::PutOperation:
+            return "PUT";
+        default:
+            qWarning() << "Unknown request operation:" << reply->operation();
+            return "UNKNOWN";
+    }
+}
+
 void ApiClient::handleNetworkReply(QNetworkReply* reply) 
 {
     int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
     QString endpoint = reply->url().path();
-    QString method = reply->operation() == QNetworkAccessManager::DeleteOperation ? "DELETE" : 
-                    reply->operation() == QNetworkAccessManager::PostOperation ? "POST" :
-                    reply->operation() == QNetworkAccessManager::PutOperation ? "PUT" : "GET";
+    QString method = getRequestMethod(reply);
     
     if (reply->error() == QNetworkReply::NoError) 
     {
@@ -175,7 +202,8 @@ void ApiClient::handleNetworkReply(QNetworkReply* reply)
     reply->deleteLater();
 }
 
-QJsonDocument ApiClient::parseReply(QNetworkReply* reply) {
+QJsonDocument ApiClient::parseReply(QNetworkReply* reply) 
+{
     return QJsonDocument::fromJson(reply->readAll());
 }
 
@@ -204,7 +232,8 @@ Task ApiClient::parseTask(const QJsonObject& obj)
     return task;
 }
 
-ApiEmployee ApiClient::parseEmployee(const QJsonObject& obj) {
+ApiEmployee ApiClient::parseEmployee(const QJsonObject& obj) 
+{
     ApiEmployee employee;
     employee.id = obj["id"].toInt();
     employee.fullName = obj["full_name"].toString();
@@ -212,17 +241,21 @@ ApiEmployee ApiClient::parseEmployee(const QJsonObject& obj) {
     return employee;
 }
 
-QList<Task> ApiClient::parseTasksArray(const QJsonArray& array) {
+QList<Task> ApiClient::parseTasksArray(const QJsonArray& array) 
+{
     QList<Task> tasks;
-    for (const QJsonValue& value : array) {
+    for (const QJsonValue& value : array) 
+    {
         tasks.append(parseTask(value.toObject()));
     }
     return tasks;
 }
 
-QList<ApiEmployee> ApiClient::parseEmployeesArray(const QJsonArray& array) {
+QList<ApiEmployee> ApiClient::parseEmployeesArray(const QJsonArray& array) 
+{
     QList<ApiEmployee> employees;
-    for (const QJsonValue& value : array) {
+    for (const QJsonValue& value : array) 
+    {
         employees.append(parseEmployee(value.toObject()));
     }
     return employees;
@@ -274,7 +307,8 @@ QJsonObject ApiClient::taskToJson(const Task& task)
     return obj;
 }
 
-QJsonObject ApiClient::employeeToJson(const ApiEmployee& employee) {
+QJsonObject ApiClient::employeeToJson(const ApiEmployee& employee) 
+{
     QJsonObject obj;
     obj["full_name"] = employee.fullName;
     obj["position"] = employee.position;
