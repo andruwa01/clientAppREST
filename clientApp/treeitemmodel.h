@@ -61,7 +61,7 @@ private:
     std::unique_ptr<TreeItem> p_rootItem;
     TreeItem *getItem(const QModelIndex &index) const;
     EmployeeModel *m_employeeModel;
-    QHash<int, TreeItem*> m_itemMap;  // Moved outside #ifdef USE_API since it's needed for core functionality
+    QHash<int, TreeItem*> m_itemMap;
 
 #ifdef USE_API
     ApiClient* m_apiClient = nullptr;

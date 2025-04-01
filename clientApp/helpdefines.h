@@ -5,7 +5,7 @@
 #define DATE_FORMAT "yyyy-MM-dd"
 
 // <------------------------ Enable / disable defines ------------------------>
-//#define TEST_INTERFACE_ONLY // enable/disable
+//#define TEST_INTERFACE_WITHOUT_API_INTEGRATION // enable/disable
 // <------------------------ Enable / disable defines ------------------------>
 
 // <------------------------  Help printing defines   ------------------------>
@@ -24,9 +24,9 @@
 
 
 // <================ CONTROLLED BY TEST_INTERFACE_ONLY ================>
-#if defined TEST_INTERFACE_ONLY 
+#if defined TEST_INTERFACE_WITHOUT_API_INTEGRATION
     #define TEST_JSON_INPUT // TEST INTERFACE WITHOUT API
-#else 
+#else
     #define USE_API // TEST INTERFACE WITH API
 #endif
 // <================ CONTROLLED BY TEST_INTERFACE_ONLY ================>
