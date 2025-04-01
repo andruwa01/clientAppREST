@@ -242,9 +242,9 @@ void EmployeeModel::setApiClient(ApiClient* client)
     if (m_apiClient)
     {
         connect(m_apiClient, &ApiClient::employeesReceived, this, &EmployeeModel::handleEmployeesReceived);
-        connect(m_apiClient, &ApiClient::employeeCreated, this, &EmployeeModel::handleEmployeeCreated);
-        connect(m_apiClient, &ApiClient::employeeUpdated, this, &EmployeeModel::handleEmployeeUpdated);
-        connect(m_apiClient, &ApiClient::employeeDeleted, this, &EmployeeModel::handleEmployeeDeleted);
+        connect(m_apiClient, &ApiClient::employeeCreated,   this, &EmployeeModel::handleEmployeeCreated);
+        connect(m_apiClient, &ApiClient::employeeUpdated,   this, &EmployeeModel::handleEmployeeUpdated);
+        connect(m_apiClient, &ApiClient::employeeDeleted,   this, &EmployeeModel::handleEmployeeDeleted);
     }
 }
 

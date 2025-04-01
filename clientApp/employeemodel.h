@@ -1,9 +1,10 @@
 #ifndef EMPLOYEEMODEL_H
 #define EMPLOYEEMODEL_H
 
+#include "helpdefines.h"
+
 #include <QAbstractTableModel>
 #include <QVector>
-#include "helpdefines.h"
 
 #ifdef USE_API
 #include "apiclient.h"
