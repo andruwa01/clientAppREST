@@ -4,22 +4,32 @@
 // Constants
 #define DATE_FORMAT "yyyy-MM-dd"
 
-// Enable / disable defines
-
+// <------------------------ Enable / disable defines ------------------------>
 //#define TEST_INTERFACE_ONLY // enable/disable
+// <------------------------ Enable / disable defines ------------------------>
 
-#if defined TEST_INTERFACE_ONLY // TEST INTERFACE WITHOUT API
-    #define TEST_JSON_INPUT
-#else // TEST INTERFACE WITH API
-    #define USE_API
-#endif
-
-// Printing defines
+// <------------------------  Help printing defines   ------------------------>
 #define PRINT_DEBUG_JSON(jsonObject) \
     qDebug() << "\n<==============================>"; \
     qDebug() << "BEGIN JSON"; \
     qDebug() << jsonObject; \
     qDebug() << "END JSON"; \
     qDebug() << "<==============================>\n";
+// <------------------------  Help printing defines   ------------------------>
+
+
+
+// BELOW - READ ONLY SECTION
+
+
+
+// <================ CONTROLLED BY TEST_INTERFACE_ONLY ================>
+#if defined TEST_INTERFACE_ONLY 
+    #define TEST_JSON_INPUT // TEST INTERFACE WITHOUT API
+#else 
+    #define USE_API // TEST INTERFACE WITH API
+#endif
+// <================ CONTROLLED BY TEST_INTERFACE_ONLY ================>
+
 
 #endif // HELPDEFINES_H
