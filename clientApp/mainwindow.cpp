@@ -98,11 +98,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->insertSubtaskAction, &QAction::triggered, this, &MainWindow::insertSubtask);
     connect(ui->removeTaskAction, &QAction::triggered, this, &MainWindow::removeTask);
     
-    // Add new employee action connections
     connect(ui->actionAddEmployee, &QAction::triggered, this, &MainWindow::insertEmployee);
     connect(ui->actionRemoveEmployee, &QAction::triggered, this, &MainWindow::removeEmployee);
 
-    // Connect employee removal handler
     connect(employeeModel, &EmployeeModel::employeeRemoved,
             [this](int employeeId) 
     {
@@ -113,7 +111,6 @@ MainWindow::MainWindow(QWidget *parent)
         }
     });
 
-    // Connect employee name change handler
     connect(employeeModel, &EmployeeModel::employeeNameChanged, [this](int employeeId)
     {
                 auto *treeModel = qobject_cast<TreeItemModel*>(ui->treeView->model());
@@ -252,7 +249,6 @@ void MainWindow::updateActions()
     ui->taskCompletedAction->setEnabled(hasCurrentTask);
     ui->taskIsNotCompletedAction->setEnabled(hasCurrentTask);
 
-    // Employee-related actions
     const bool hasEmployeeSelection = ui->tableView->selectionModel() && 
                                     !ui->tableView->selectionModel()->selection().isEmpty();
     ui->actionRemoveEmployee->setEnabled(hasEmployeeSelection);
@@ -282,6 +278,7 @@ void MainWindow::refreshData()
     }
 
     // Sync both models with server
+
     auto *employeeModel = qobject_cast<EmployeeModel*>(ui->tableView->model());
     if (employeeModel)
     {

@@ -43,7 +43,7 @@ QJsonObject TreeItem::taskDataToJson() const
     jsonObj["assignee_id"] = (m_assigneeId != 0) ? m_assigneeId : QJsonValue::Null;
     jsonObj["title"] = m_title;
     jsonObj["description"] = m_description;
-    jsonObj["due_date"] = m_dueDate.toString(DATE_FORMAT);  // Используем UI формат для даты
+    jsonObj["due_date"] = m_dueDate.toString(DATE_FORMAT); // UI format for date
     jsonObj["status"] = statusToString(m_status);
     return jsonObj;
 }
@@ -276,9 +276,8 @@ const QDate &TreeItem::dueDate() const
 {
     if (!m_dueDate.isValid()) 
     {
-        static QDate currentDate = QDate::currentDate();
         qWarning() << "Invalid date requested from TreeItem, returning current date";
-        return currentDate;
+        return QDate::currentDate();
     }
     return m_dueDate;
 }
