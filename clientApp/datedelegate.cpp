@@ -3,8 +3,7 @@
 
 DateDelegate::DateDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
-{
-}
+{}
 
 QWidget *DateDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &, const QModelIndex &index) const
 {
@@ -44,7 +43,6 @@ void DateDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, cons
     auto *dateEditor = qobject_cast<QDateEdit *>(editor);
     if (dateEditor)
     {
-        // Отправляем дату в формате DATE_FORMAT в модель
         model->setData(index, dateEditor->date().toString(DATE_FORMAT), Qt::EditRole);
     }
 }
