@@ -104,13 +104,13 @@ void TreeItemModel::onEmployeeRemoved(int employeeId)
     bool updated = false;
     std::function<void(TreeItem*)> updateItems = [this, employeeId, &updated, &updateItems](TreeItem* item) {
         if (!item) return;
-        
+
         if (item->data(TreeItem::Column_Employee).toInt() == employeeId)
         {
             item->setData(TreeItem::Column_Employee, 0);
             QModelIndex idx = createIndex(item->rowInParentChilds(), TreeItem::Column_Employee, item);
             emit dataChanged(idx, idx, {Qt::DisplayRole});
-            
+
 #ifdef USE_API
             if (m_apiClient && item->id() > 0)
             {
@@ -120,13 +120,13 @@ void TreeItemModel::onEmployeeRemoved(int employeeId)
 #endif
             updated = true;
         }
-        
+
         for (int i = 0; i < item->childCount(); i++)
         {
             updateItems(item->child(i));
         }
     };
-    
+
     updateItems(p_rootItem.get());
 }
 
@@ -134,18 +134,18 @@ void TreeItemModel::onEmployeeNameChanged(int employeeId)
 {
     std::function<void(TreeItem*)> updateItems = [this, employeeId, &updateItems](TreeItem* item) {
         if (!item) return;
-        
+
         if (item->data(TreeItem::Column_Employee).toInt() == employeeId) {
             QModelIndex idx = createIndex(item->rowInParentChilds(), TreeItem::Column_Employee, item);
             emit dataChanged(idx, idx, {Qt::DisplayRole});
         }
-        
+
         for (int i = 0; i < item->childCount(); i++)
         {
             updateItems(item->child(i));
         }
     };
-    
+
     updateItems(p_rootItem.get());
 }
 
@@ -153,7 +153,7 @@ void TreeItemModel::onEmployeeNameChanged(int employeeId)
 void TreeItemModel::setApiClient(ApiClient* client)
 {
     m_apiClient = client;
-    
+
     if (m_apiClient)
     {
         connect(m_apiClient, &ApiClient::tasksReceived, this, &TreeItemModel::handleTasksReceived);
@@ -174,11 +174,11 @@ void TreeItemModel::syncWithServer()
 void TreeItemModel::handleTasksReceived(const QList<Task>& tasks)
 {
     beginResetModel();
-    
+
     // Clear existing data
     p_rootItem = std::make_unique<TreeItem>(QJsonObject());
     m_itemMap.clear();
-    
+
     // First pass: create all items
     for (const Task& task : tasks)
     {
@@ -187,19 +187,19 @@ void TreeItemModel::handleTasksReceived(const QList<Task>& tasks)
         {
             parentItem = m_itemMap[task.parentTaskId];
         }
-        
+
         int newRow = parentItem->childCount();
         parentItem->insertChildren(newRow, 1);
         TreeItem* newItem = parentItem->child(newRow);
-        
+
         // Set task data
         QJsonObject taskJson = m_apiClient->taskToJson(task);
         newItem->setTaskDataFromJson(taskJson);
-        
+
         // Cache the item
         m_itemMap.insert(task.id, newItem);
     }
-    
+
     endResetModel();
 }
 
@@ -216,25 +216,25 @@ void TreeItemModel::handleTaskCreated(const Task& task)
     {
         parentIndex = createIndex(parentItem->rowInParentChilds(), 0, parentItem);
     }
-    
+
     beginInsertRows(parentIndex, parentItem->childCount(), parentItem->childCount());
-    
+
     parentItem->insertChildren(parentItem->childCount(), 1);
     TreeItem* newItem = parentItem->child(parentItem->childCount() - 1);
-    
+
     QJsonObject taskJson = m_apiClient->taskToJson(task);
     newItem->setTaskDataFromJson(taskJson);
-    
-    if (task.id > 0) 
+
+    if (task.id > 0)
     {
         m_itemMap.insert(task.id, newItem);
         qDebug() << "Added new task to itemMap, id:" << task.id;
-    } 
-    else 
+    }
+    else
     {
         qWarning() << "Invalid task id for new task:" << task.id;
     }
-    
+
     endInsertRows();
 
     QModelIndex newIndex = createIndex(parentItem->childCount() - 1, 0, newItem);
@@ -247,7 +247,7 @@ void TreeItemModel::handleTaskUpdated(const Task& task)
     {
         QJsonObject taskJson = m_apiClient->taskToJson(task);
         item->setTaskDataFromJson(taskJson);
-        
+
         QModelIndex topLeft = createIndex(item->rowInParentChilds(), 0, item);
         QModelIndex bottomRight = createIndex(item->rowInParentChilds(), columnCount() - 1, item);
         emit dataChanged(topLeft, bottomRight);
@@ -264,7 +264,7 @@ void TreeItemModel::handleTaskDeleted(int id)
             qWarning() << "Cannot delete task with id" << id << ": no parent item";
             return;
         }
-        
+
         int row = item->rowInParentChilds();
         if (row < 0)
         {
@@ -273,32 +273,32 @@ void TreeItemModel::handleTaskDeleted(int id)
         }
 
         QSet<int> idsToRemove;
-        std::function<void(TreeItem*)> collectIds = [&idsToRemove, &collectIds](TreeItem* item) 
+        std::function<void(TreeItem*)> collectIds = [&idsToRemove, &collectIds](TreeItem* item)
         {
             if (!item) return;
             idsToRemove.insert(item->id());
-            for (int i = 0; i < item->childCount(); ++i) 
+            for (int i = 0; i < item->childCount(); ++i)
             {
                 collectIds(item->child(i));
             }
         };
-        
+
         collectIds(item);
         qDebug() << "Will remove task" << id << "with subtasks. Total tasks to remove:" << idsToRemove.size();
 
-        QModelIndex parentIndex = parentItem == p_rootItem.get() ? 
-                                QModelIndex() : 
+        QModelIndex parentIndex = parentItem == p_rootItem.get() ?
+                                QModelIndex() :
                                 createIndex(parentItem->rowInParentChilds(), 0, parentItem);
 
         beginRemoveRows(parentIndex, row, row);
         parentItem->removeChildren(row, 1);
-        
-        for (int idToRemove : idsToRemove) 
+
+        for (int idToRemove : idsToRemove)
         {
             m_itemMap.remove(idToRemove);
             qDebug() << "Removed from itemMap:" << idToRemove;
         }
-        
+
         endRemoveRows();
     }
 }
@@ -323,18 +323,18 @@ Task TreeItemModel::toTask(TreeItem* item)
     task.parentTaskId = item->parentTaskId();
     task.title = item->title();
     task.description = item->description();
-    
+
     // Fix date conversion
     QDate itemDate = item->dueDate();
     qDebug() << "Converting date from TreeItem to Task:" << itemDate;
-    
+
     if (itemDate.isValid()) {
         task.dueDate = itemDate;
     } else {
         qWarning() << "Invalid date in TreeItem, using current date";
         task.dueDate = QDate::currentDate();
     }
-    
+
     task.status = item->statusToString(item->status());
     task.assigneeId = item->assigneeId();
     return task;
@@ -420,6 +420,8 @@ QVariant TreeItemModel::data(const QModelIndex &index, int role) const
 
 bool TreeItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+    Q_UNUSED(role)
+
     if (!index.isValid())
     {
         qWarning() << "Attempting to set data with invalid index";
@@ -463,7 +465,7 @@ QVariant TreeItemModel::headerData(int section, Qt::Orientation orientation, int
         {
             case TreeItem::Column_Title:       return "Title";
             case TreeItem::Column_Description: return "Description";
-            case TreeItem::Column_DueDate:     return "Due date"; 
+            case TreeItem::Column_DueDate:     return "Due date";
             case TreeItem::Column_Status:      return "Status";
             case TreeItem::Column_Employee:    return "Employee";
             default: return QVariant();
@@ -499,7 +501,7 @@ bool TreeItemModel::insertRows(int row, int count, const QModelIndex &parent)
 
     beginInsertRows(parent, row, row + count - 1);
     const bool success = parentItem->insertChildren(row, count);
-    if (success) 
+    if (success)
     {
         TreeItem* newItem = parentItem->child(row);
         newItem->setData(TreeItem::Column_Title, tr("New Task"));
@@ -535,7 +537,7 @@ bool TreeItemModel::removeRows(int row, int count, const QModelIndex &parent)
             qWarning() << "Attempting to delete task that is not in itemMap:" << taskId;
             return false;
         }
-        
+
         QSet<int> allTaskIds;
         std::function<void(TreeItem*)> collectIds = [&allTaskIds, &collectIds](TreeItem* item) {
             if (!item) return;
@@ -545,9 +547,9 @@ bool TreeItemModel::removeRows(int row, int count, const QModelIndex &parent)
             }
         };
         collectIds(itemToRemove);
-        
+
         qDebug() << "About to delete task" << taskId << "with" << (allTaskIds.size() - 1) << "subtasks";
-        
+
         m_apiClient->deleteTask(taskId);
         return true; // Actual removal will happen in handleTaskDeleted
     }
