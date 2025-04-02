@@ -20,4 +20,4 @@
 - [ ] void ApiClient::updateTask() -> убрать поле id, вместо этого извлекать поле из task (task.id).
 - [ ] bool TreeItemModel::insertRows() -> return true; после m_apiClient->createTask(task) - это не совсем корректно сделано, можно изменить.
 - [ ] исправить ситуацию, при который слоты из treeitemmodel вызываются вручную, это неправильно строго говоря.
-- [ ] убрать в void MainWindow::handleTaskStatuschange ui->treeView->viewport()->update();
+- [ ] убрать в void MainWindow::handleTaskStatuschange ui->treeView->viewport()->update(); ---> всё обновляется и без этого.
