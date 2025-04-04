@@ -23,4 +23,4 @@
 - [ ] убрать в void MainWindow::handleTaskStatuschange ui->treeView->viewport()->update(); ---> всё обновляется и без этого.
 - [ ] в void TreeItemModel::onEmployeeRemoved(int employeeId)
 	- [ ] убрать / добавить обработку флага `updated`, потому что пока что он не спользуется.
-	- [ ] убрать createIndex() рекурсивный ?
+	- [ ] убрать createIndex() ?
